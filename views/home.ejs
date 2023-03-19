@@ -1,0 +1,27 @@
+
+<%- include('partials/header.ejs'); -%>
+
+  <div class="Welcomecontainer">
+    <h1 class="welcomemessage">Welcome to Memory Meetings!</h1>
+    <section class="features">
+      <ul class="featureslist">
+        <li class="feature">Save your meeting, and Memory Meetings will do the rest!</li>
+        <li class="feature">Capture the essence of your meetings with our innovative website.</li>
+        <li class="feature">Archive your voice meetings</li>
+        <li class="feature">Analyze participants' speech patterns</li>
+        <li class="feature">Searchable transcripts</li>
+        <li class="feature">Collaborative notes</li>
+        <li class="feature">Get insights into your meeting history and more.</li>
+      </ul>
+    </section>
+    <button class="getStarted">Schedule a meeting</button>
+  </div>
+
+    <% meetings.forEach(function(element){ %>
+      <h2><%= element.title %></h2>
+      <p><%= element.description.slice(0, 100) + "..." %><a  href="/meetings/<%=element.title%>"" >Read More</a></p>
+  <%  }); %>
+
+
+
+<%- include('partials/footer.ejs'); %>

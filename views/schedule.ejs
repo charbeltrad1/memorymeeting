@@ -1,0 +1,19 @@
+<%- include('partials/header.ejs'); -%>
+
+<h1>Schedule</h1>
+
+<form class="" action="/compose" method="post">
+  <div class="form-group">
+    <label for="FormControlInput1">Title</label>
+    <input class="form-control" id="FormControlInput1" name="meetingtitle">
+  </div>
+
+  <div class="form-group">
+    <label for="FormControlTextarea1">Description</label>
+    <textarea class="form-control" id="FormControlTextarea1" rows="5" name="meetingdescription"></textarea>
+  </div>
+  
+  <button type="submit" name="button" class="btn btn-primary">Publish</button>
+</form>
+
+<%- include('partials/footer.ejs'); %>
