@@ -5,10 +5,8 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require('mongoose');
 const _ = require('lodash');
-const { intersection } = require("lodash");
 
-
-mongoose.connect("mongodb://localhost:27017/memorymeetingDB", {
+mongoose.connect("mongodb://localhost:27017/memorymeeting", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -55,6 +53,16 @@ app.get("/schedule", function(req, res) {
   res.render("schedule");
 });
 
+app.get("/meetings", function(req, res) {
+  Meeting.find({}, function(err, foundmeetings) {
+    if (!err) {
+      res.render("meetings", {
+        meetings: foundmeetings
+      });
+    }
+  });
+});
+
 app.get("/meetings/:p", function(req, res) {
   const requestedtitle = _.lowerCase(req.params.p);
 
@@ -65,15 +73,18 @@ app.get("/meetings/:p", function(req, res) {
 
 app.post("/schedule", function(request, response) {
   const title = _.lowerCase(request.body.meetingtitle);
+  const date = request.body.meetingdate;
+  const participants = (request.body.meetingparticipants).split(" ");
   const description = request.body.meetingdescription;
-  
+
   const meeting = new Meeting({ //this is a javascript object
     title: title,
     description: description,
-    participants: [],
-    date: new Date(),
+    participants: participants,
+    date: date,
     meetingstate: false,
   });
+  console.log(meeting);
   meeting.save();
   response.redirect("/");
 });

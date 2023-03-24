@@ -1,0 +1,22 @@
+
+<%- include('partials/header.ejs'); -%>
+
+<div>
+    <br>
+    <br>
+    <% meetings.forEach(function(element){ %>
+      <div class="meeting">
+        <ul>
+            <li><strong>Title:</strong> <%= element.title %></li>
+            <li><strong>Description:</strong> <%= element.description%></li>
+            <li><strong>Participants:</strong> <%= element.participants%></li>
+            <li><strong>Date:</strong> <%= element.date%></li>
+            <button class="meetingButton"><a href="/meetings/<%=element.title%>">Read More</a></button>
+        </ul>
+        </div>
+        <br>
+        <br>
+    <% }); %>
+  </div>
+
+<%- include('partials/footer.ejs'); %>

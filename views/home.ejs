@@ -14,14 +14,10 @@
         <li class="feature">Get insights into your meeting history and more.</li>
       </ul>
     </section>
-    <button class="getStarted">Schedule a meeting</button>
+    <button class="getStarted">
+      <a href="/schedule">Schedule a meeting</a>
+    </button>
   </div>
-
-    <% meetings.forEach(function(element){ %>
-      <h2><%= element.title %></h2>
-      <p><%= element.description.slice(0, 100) + "..." %><a  href="/meetings/<%=element.title%>"" >Read More</a></p>
-  <%  }); %>
-
 
 
 <%- include('partials/footer.ejs'); %>

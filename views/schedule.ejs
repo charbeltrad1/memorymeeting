@@ -2,7 +2,7 @@
 
 <h1>Schedule</h1>
 
-<form class="" action="/compose" method="post">
+<form class="" action="/schedule" method="post">
   <div class="form-group">
     <label for="FormControlInput1">Title</label>
     <input class="form-control" id="FormControlInput1" name="meetingtitle">
@@ -10,45 +10,20 @@
 
   <div class="form-group">
     <label for="FormControlInput2">Date</label>
-    <input class="form-control" id="FormControlInput1" name="meetingdate">
+    <input class="form-control" type="date" id="FormControlInput2" name="meetingdate">
   </div>
-
+  
+  <div class="form-group">
+    <label for="FormControlTextarea3">Participants</label>
+    <textarea class="form-control" id="FormControlTextarea3" rows="5" name="meetingparticipants"></textarea>
+  </div>
 
   <div class="form-group">
-    <h4>Participants :</h4>
-    <div id="participants-container">
-      <label for="participant-1">Participant 1:</label>
-      <input type="text" id="participant-1" name="participant-1"><br><br>
-    </div>
-    <button type="button" id="add-participant-btn" class="btn btn-secondary">Add Participant</button><br><br>
+    <label for="FormControlTextarea4">Description</label>
+    <textarea class="form-control" id="FormControlTextarea4" rows="5" name="meetingdescription"></textarea>
   </div>
 
-  <!-- script for adding new participants -->
-
-  <script>
-    let i = 2;
-    document.getElementById("add-participant-btn").addEventListener("click", function() {
-      let container = document.getElementById("participants-container");
-      let inputs = container.getElementsByTagName("input");
-      let lastInput = inputs[inputs.length - 1];
-      let id = lastInput.id;
-      let number = parseInt(id.substr(id.length - 1)) + 1;
-      container.insertAdjacentHTML("beforeend", "<label for='participant-" + number + "'>Participant " + number + ":</label><input type='text' id='participant-" + number + "' name='participant-" + number + "'><br><br>");
-      i++;
-    });
-  </script>
-
-  <!-- script to group all participants in a list -->
-
-
-
-
-  <div class="form-group">
-    <label for="FormControlTextarea1">Description</label>
-    <textarea class="form-control" id="FormControlTextarea1" rows="5" name="meetingdescription"></textarea>
-  </div>
-
-  <button type="submit" name="button" class="btn btn-primary">Publish</button>
+  <button type="submit" name="button" class="btn btn-primary">Schedule meeting</button>
 </form>
 
 <%- include('partials/footer.ejs'); %>
