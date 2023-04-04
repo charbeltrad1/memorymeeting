@@ -2,20 +2,19 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const ejs = require("ejs");
 const mongoose = require('mongoose');
 const _ = require('lodash');
-
 mongoose.connect("mongodb://localhost:27017/memorymeeting", {
   useNewUrlParser: true,
   useUnifiedTopology: true
-});
+}).then(() => console.log("Connected to DB!")).catch(e => console.log(e));
 
 const meetingSchema = new mongoose.Schema({
   title: String,
-  description: String,
+  agenda: String,
   participants: Array,
   date: Date,
+  location: String,
   meetingstate: Boolean,
 });
 
@@ -41,18 +40,26 @@ app.get("/", function(req, res) {
   });
 });
 
-app.get("/about", function(req, res) {
-  res.render("about");
+
+app.get("/schedule", function(req, res) {
+  res.render("schedule");
 });
 
 app.get("/contact", function(req, res) {
   res.render("contact");
 });
 
-app.get("/schedule", function(req, res) {
-  res.render("schedule");
+app.get("/about", function(req, res) {
+  res.render("about");
 });
 
+app.get("/meetings/:p", function(req, res) {
+  const requestedtitle = _.lowerCase(req.params.p);
+
+  Meeting.findOne({title:requestedtitle}, function(err,foundmeeting){
+    res.render("meeting", {mymeeting: foundmeeting});
+  });
+});
 app.get("/meetings", function(req, res) {
   Meeting.find({}, function(err, foundmeetings) {
     if (!err) {
@@ -63,29 +70,30 @@ app.get("/meetings", function(req, res) {
   });
 });
 
-app.get("/meetings/:p", function(req, res) {
-  const requestedtitle = _.lowerCase(req.params.p);
-
-  Meeting.findOne({title:requestedtitle}, function(err,foundmeeting){
-    res.render("meeting", {mymeeting: foundmeeting});
-  });
+app.get("/login", function(req, res) {
+    res.render("login");
 });
 
 app.post("/schedule", function(request, response) {
-  const title = _.lowerCase(request.body.meetingtitle);
-  const date = request.body.meetingdate;
-  const participants = (request.body.meetingparticipants).split(" ");
-  const description = request.body.meetingdescription;
+  const title = _.lowerCase(request.body.meetingTitle);
+  const date = request.body.meetingDate;
+  const time = request.body.meetingTime;
+  const combinedDateTime = date + " " + time;
+  const location = request.body.meetingLocation;
+  const participants = request.body.meetingParticipants;
+  console.log(participants);
+  const agenda = request.body.meetingAgenda;
+
 
   const meeting = new Meeting({ //this is a javascript object
     title: title,
-    description: description,
+    agenda: agenda,
     participants: participants,
-    date: date,
+    date: combinedDateTime,
+    location: location,
     meetingstate: false,
   });
-  console.log(meeting);
-  meeting.save();
+  meeting.save().then(r => console.log(r)).catch(e => console.log(e));
   response.redirect("/");
 });
 
