@@ -1,23 +1,47 @@
 
 <%- include('partials/header.ejs'); -%>
-
-<div>
-    <br>
-    <br>
+<div class="container-fluid">
+  <div class="row">
     <% meetings.forEach(function(element){ %>
-      <div class="meeting">
-        <ul>
-            <li><strong>Title:</strong> <%= element.title %></li>
-            <li><strong>Description:</strong> <%= element.description%></li>
-            <li><strong>Participants:</strong> <%= element.participants%></li>
-            <li><strong>Date:</strong> <%= element.date%></li>
-            <li><strong>Location:</strong> <%= element.location%></li>
-            <button class="meetingButton"><a href="/meetings/<%=element.title%>">Read More</a></button>
-        </ul>
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body" id=<%= element._id%>>
+            <h5 class="card-title"><%= element.title %></h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Date:</strong> <%= element.date%></li>
+              <li class="list-group-item"><strong>Location:</strong> <%= element.location%></li>
+              <li class="list-group-item"><strong>Meeting Url:</strong> <%= element.meetinglink%></li>
+              <li class="list-group-item"><strong>Participants:</strong> <%= element.participants%></li>
+              <li class="list-group-item"><strong>Topics:</strong> <%= element.topics%></li>
+              <li class="list-group-item"><strong>Description:</strong> <%= element.description%></li>
+            </ul>
+            <button class="btn btn-primary mt-3"><a href="/meetings/<%=element._id%>" class="text-white">Read More</a></button>
+            <button class="btn btn-primary mt-3" onclick='deleteElement("<%= element._id%>")'>Delete</button>
+          </div>
         </div>
-        <br>
-        <br>
+      </div>
     <% }); %>
   </div>
+</div>
 
+<script>
+  function deleteElement(id){
+    var elementBox = document.getElementById(id);
+
+    var form = document.createElement("form");
+    form.action="/deleteElement";
+    form.method="post";
+    
+    var input = document.createElement("input");
+    input.name="_id";
+    input.value=id;
+
+    var button = document.createElement("button");
+    button.type="submit";
+
+    form.append(input);
+    form.append(button);
+    elementBox.append(form)
+  }
+</script>
 <%- include('partials/footer.ejs'); %>

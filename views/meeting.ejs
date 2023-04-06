@@ -1,8 +1,17 @@
 
 <%- include('partials/header.ejs'); -%>
-
-    <h1><%=mymeeting.title%></h1>
-    <p><%= mymeeting.description %></p>
-
+    <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><%= mymeeting.title%></h2>
+          <p class="card-date"><%= mymeeting.date%></p>
+          <p class="card-location"><%= mymeeting.location%></p>
+        </div>
+        <div class="card-body">
+          <p class="card-url">URL: <%= mymeeting.meetinglink%></p>
+          <p class="card-participants">Participants: <%= mymeeting.participants%></p>
+          <p class="card-topics">Topics: <%= mymeeting.topics%></p>
+          <p class="card-description">Description: <%= mymeeting.description%></p>
+        </div>
+      </div>
 
 <%- include('partials/footer.ejs'); %>

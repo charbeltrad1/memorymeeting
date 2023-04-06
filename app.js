@@ -11,14 +11,15 @@ mongoose.connect("mongodb://localhost:27017/memorymeeting", {
 
 const meetingSchema = new mongoose.Schema({
   title: String,
-  agenda: String,
-  participants: Array,
   date: Date,
   location: String,
-  meetingstate: Boolean,
+  meetinglink: String,
+  participants: Array,
+  topics: Array,
+  description: String,
 });
 
-const Meeting = mongoose.model("meeting", meetingSchema);
+const Meeting = mongoose.model("meetingsDB", meetingSchema);
 
 const app = express();
 
@@ -54,9 +55,9 @@ app.get("/about", function(req, res) {
 });
 
 app.get("/meetings/:p", function(req, res) {
-  const requestedtitle = _.lowerCase(req.params.p);
+  const requestedid = req.params.p;
 
-  Meeting.findOne({title:requestedtitle}, function(err,foundmeeting){
+  Meeting.findOne({_id:requestedid}, function(err,foundmeeting){
     res.render("meeting", {mymeeting: foundmeeting});
   });
 });
@@ -75,29 +76,34 @@ app.get("/login", function(req, res) {
 });
 
 app.post("/schedule", function(request, response) {
+  console.log(request.body)
+
   const title = _.lowerCase(request.body.meetingTitle);
-  const date = request.body.meetingDate;
-  const time = request.body.meetingTime;
-  const combinedDateTime = date + " " + time;
+  const date = new Date(request.body.meetingDate);
   const location = request.body.meetingLocation;
+  const meetingurl = request.body.meetingUrl;
   const participants = request.body.meetingParticipants;
-  console.log(participants);
-  const agenda = request.body.meetingAgenda;
+  const topics = request.body.meetingTopics;
+  const description = request.body.meetingDescription;
+  const meetingData = {};
 
-
-  const meeting = new Meeting({ //this is a javascript object
-    title: title,
-    agenda: agenda,
-    participants: participants,
-    date: combinedDateTime,
-    location: location,
-    meetingstate: false,
-  });
+  if (title) meetingData.title = title;
+  if (date) meetingData.date = date;
+  if (location) meetingData.location = location;
+  if (meetingurl) meetingData.meetinglink = meetingurl;
+  if (participants) meetingData.participants = participants;
+  if (topics) meetingData.topics = topics;
+  if (description) meetingData.description = description;
+  
+  const meeting = new Meeting(meetingData);
   meeting.save().then(r => console.log(r)).catch(e => console.log(e));
   response.redirect("/");
 });
 
-
+app.post("/deleteElement", function(request, response) {
+  let id = request.body._id
+  Meeting.findOneAndDelete({_id:id});
+});
 
 app.listen(2700, function() {
   console.log("Server started on port 2700");
