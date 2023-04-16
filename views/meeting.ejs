@@ -1,17 +1,125 @@
 
 <%- include('partials/header.ejs'); -%>
-    <div class="card">
-        <div class="card-header">
-          <h2 class="card-title"><%= mymeeting.title%></h2>
-          <p class="card-date"><%= mymeeting.date%></p>
-          <p class="card-location"><%= mymeeting.location%></p>
-        </div>
-        <div class="card-body">
-          <p class="card-url">URL: <%= mymeeting.meetinglink%></p>
-          <p class="card-participants">Participants: <%= mymeeting.participants%></p>
-          <p class="card-topics">Topics: <%= mymeeting.topics%></p>
-          <p class="card-description">Description: <%= mymeeting.description%></p>
-        </div>
-      </div>
+
+<div>
+  <br>
+  <br>
+  <h1 class="card-title"><%= mymeeting.title%></h1>
+  <p class="card-date"><%= mymeeting.date%></p>
+  <p class="card-location"><%= mymeeting.location%></p>
+  <br>
+  <p><b>URL:</b> <%= mymeeting.meetinglink%></p>
+  <br>
+  <label for="my-dropdown-participants">Participants:</label>
+  <select id="my-dropdown-participants">
+    <% mymeeting.participants.forEach(function(element){ %>
+      <option value="<%= element %>"><%= element %></option>
+    <% }); %>
+    </select>
+    <br>
+    <br>
+  <label for="my-dropdown-topics">Topics:</label>
+  <select id="my-dropdown-topics">
+    <% mymeeting.topics.forEach(function(element){ %>
+      <option value="<%= element %>"><%= element %></option>
+    <% }); %>
+  </select>
+  <br>
+  <br>
+  <p class="card-description"><b>Description:</b><%= mymeeting.description%></p>
+  <br>
+  <button class="btn btn-primary mt-3" onclick='deleteElement("<%= mymeeting._id%>")'>Delete</button>
+  <br>
+  <br>
+  <button class="btn btn-primary mt-3" id="record-button" onclick="startRecording()">Record</button>
+  <button class="btn btn-primary mt-3" id="save-button" onclick='saveRecording("<%= mymeeting._id%>")'>Save</button>
+</div>
+
+
+
+      <script>
+        let meetingtranscript=[];
+        var button = document.getElementById("record-button");
+
+        function deleteElement(id){
+          console.log(id);
+          fetch('/deleteElement', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({_id:id})
+          })
+          .then(response => {
+            // handle the response from the server
+            console.log(response);
+            location.replace("/meetings")
+          })
+          .catch(error => {
+            // handle any errors that occur during the request
+            console.error(error);
+          });
+        }
+
+        const startRecording = () => {
+          const constraints = { audio: true };
+          navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => {
+            const recognition = new window.webkitSpeechRecognition();
+            recognition.continuous = true; // listen for speech until stopped
+            recognition.lang = navigator.language;
+            recognition.start();
+
+            recognition.addEventListener('result', event => {
+              button.style.backgroundColor = "green";
+
+              for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                const transcriptionText = result[0].transcript;
+                const speaker = document.getElementById("my-dropdown-participants").value;
+                const topic = document.getElementById("my-dropdown-topics").value;
+                meetingtranscript.push({"name":speaker,"topic":topic,"transcription":transcriptionText});
+              }
+            });
+
+            recognition.addEventListener('end', () => {
+              button.style.backgroundColor = "#2980B9";
+
+              // Speech recognition has ended
+              console.log('Speech recognition has ended.');
+
+              // Stop the media stream
+              stream.getTracks().forEach(track => track.stop());
+            });
+          })
+          .catch(error => {
+            console.error('Error accessing microphone:', error);
+          });
+
+        };
+
+
+        const saveRecording = async (id) => {
+          console.log(meetingtranscript);
+          recording = false;
+          let options = {
+            method: "POST",
+            body: JSON.stringify({"id":id,"transcription":meetingtranscript}),
+            headers: {
+              'Content-Type': 'application/json'
+            },
+          };
+          fetch("/save-audio", options)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Failed to upload audio");
+            }
+            console.log("Transcript uploaded successfully");
+          })
+          .catch(error => {
+            console.error(error);
+          });
+        };
+      </script>
 
 <%- include('partials/footer.ejs'); %>

@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const _ = require('lodash');
+
 mongoose.connect("mongodb://localhost:27017/memorymeeting", {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -17,6 +18,7 @@ const meetingSchema = new mongoose.Schema({
   participants: Array,
   topics: Array,
   description: String,
+  transcription: Array,
 });
 
 const Meeting = mongoose.model("meetingsDB", meetingSchema);
@@ -29,6 +31,8 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(express.static("public"));
+app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 
 app.get("/", function(req, res) {
 
@@ -58,11 +62,16 @@ app.get("/meetings/:p", function(req, res) {
   const requestedid = req.params.p;
 
   Meeting.findOne({_id:requestedid}, function(err,foundmeeting){
+    console.log(foundmeeting);
     res.render("meeting", {mymeeting: foundmeeting});
   });
 });
+
 app.get("/meetings", function(req, res) {
   Meeting.find({}, function(err, foundmeetings) {
+    if(foundmeetings.length===0){
+      res.redirect("/schedule");
+    }
     if (!err) {
       res.render("meetings", {
         meetings: foundmeetings
@@ -97,12 +106,33 @@ app.post("/schedule", function(request, response) {
   
   const meeting = new Meeting(meetingData);
   meeting.save().then(r => console.log(r)).catch(e => console.log(e));
-  response.redirect("/");
+  response.redirect("/meetings");
 });
 
-app.post("/deleteElement", function(request, response) {
-  let id = request.body._id
-  Meeting.findOneAndDelete({_id:id});
+app.post("/deleteElement", function(request, response, next) {
+  console.log(request.body);
+  Meeting.deleteOne(request.body, function(err) {
+    if (err) {
+      console.log(err);
+      next(err); // pass the error to Express's error handler
+    } else {
+      console.log("Successfully deleted an item of our document.");
+    }
+  });
+});
+
+app.post('/save-audio', (req, res) => {
+  // Get the uploaded audio blob from the request
+  const transcription = req.body.transcription;
+  const id = req.body.id;
+  const update = { $set: { transcription: transcription } };
+
+  Meeting.updateOne({_id:id}, update)
+  .then(result => {
+    console.log(`Documents updated: ${result.modifiedCount} modified`);
+  })
+  .catch(err => console.error(`Error updating documents: ${err}`));
+  res.json({ message: "Transcription uploaded successfully" });
 });
 
 app.listen(2700, function() {

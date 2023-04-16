@@ -42,7 +42,7 @@
     <textarea class="form-control" id="FormControlTextarea2" rows="5" name="meetingDescription" placeholder = 'Enter the description of your meeting'></textarea>
   </div>
 
-  <button type="submit" name="button" class="btn btn-primary">Schedule meeting</button>
+  <button type="submit" name="button" onclick="sendEmail()" class="btn btn-primary">Schedule meeting</button>
 </form>
 <script src="https://smtpjs.com/v3/smtp.js"></script>
 <script>
@@ -67,5 +67,49 @@ function remove(inputtype){
   var liList = participantsList.getElementsByTagName('li');
   participantsList.removeChild(liList[liList.length - 1]);
 }
+function sendEmail() {
+  // Get form data
+  const meetingTitle = document.getElementById('FormControlInput1').value;
+  const meetingDate = document.getElementById('FormControlInput2').value;
+  const meetingLocation = document.getElementById('FormControlInput3').value;
+  const meetingUrl = document.getElementById('FormControlInput4').value;
+  const meetingDescription = document.getElementById('FormControlTextarea2').value;
+  
+  // Get participants
+  const participants = [];
+  const participantsList = document.getElementById('listParticipants').getElementsByTagName('li');
+  for (let i = 0; i < participantsList.length; i++) {
+    const participant = participantsList[i].getElementsByTagName('input')[0].value;
+    participants.push(participant);
+  }
+  
+  // Get topics
+  const topics = [];
+  const topicsList = document.getElementById('listTopics').getElementsByTagName('li');
+  for (let i = 0; i < topicsList.length; i++) {
+    const topic = topicsList[i].getElementsByTagName('input')[0].value;
+    topics.push(topic);
+  }
+  
+  // Create email content
+  let emailContent = `Meeting Title: ${meetingTitle}\n`;
+  emailContent += `Date and Time: ${meetingDate}\n`;
+  emailContent += `Location: ${meetingLocation}\n`;
+  emailContent += `Meeting URL: ${meetingUrl}\n\n`;
+  emailContent += `Description: ${meetingDescription}\n\n`;
+  emailContent += `Participants:\n`;
+  for (let i = 0; i < participants.length; i++) {
+    emailContent += `- ${participants[i]}\n`;
+  }
+  emailContent += `\nTopics:\n`;
+  for (let i = 0; i < topics.length; i++) {
+    emailContent += `- ${topics[i]}\n`;
+  }
+  
+  // Open email client with pre-filled contents
+  const mailtoLink = `mailto:${participants.join(',')}?subject=${encodeURIComponent(meetingTitle)}&body=${encodeURIComponent(emailContent)}`;
+  window.location.href = mailtoLink;
+}
+
 </script>
 <%- include('partials/footer.ejs'); %>

@@ -6,7 +6,7 @@
       <div class="col-md-6">
         <div class="card mb-3">
           <div class="card-body" id=<%= element._id%>>
-            <h5 class="card-title"><%= element.title %></h5>
+            <h1 class="card-title"><%= element.title %></h1>
             <ul class="list-group list-group-flush">
               <li class="list-group-item"><strong>Date:</strong> <%= element.date%></li>
               <li class="list-group-item"><strong>Location:</strong> <%= element.location%></li>
@@ -16,7 +16,6 @@
               <li class="list-group-item"><strong>Description:</strong> <%= element.description%></li>
             </ul>
             <button class="btn btn-primary mt-3"><a href="/meetings/<%=element._id%>" class="text-white">Read More</a></button>
-            <button class="btn btn-primary mt-3" onclick='deleteElement("<%= element._id%>")'>Delete</button>
           </div>
         </div>
       </div>
@@ -24,24 +23,5 @@
   </div>
 </div>
 
-<script>
-  function deleteElement(id){
-    var elementBox = document.getElementById(id);
 
-    var form = document.createElement("form");
-    form.action="/deleteElement";
-    form.method="post";
-    
-    var input = document.createElement("input");
-    input.name="_id";
-    input.value=id;
-
-    var button = document.createElement("button");
-    button.type="submit";
-
-    form.append(input);
-    form.append(button);
-    elementBox.append(form)
-  }
-</script>
 <%- include('partials/footer.ejs'); %>
