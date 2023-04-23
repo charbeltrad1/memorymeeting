@@ -1,38 +1,56 @@
 
 <%- include('partials/header.ejs'); -%>
 
-<div>
-  <br>
-  <br>
-  <h1 class="card-title"><%= mymeeting.title%></h1>
-  <p class="card-date"><%= mymeeting.date%></p>
-  <p class="card-location"><%= mymeeting.location%></p>
-  <br>
-  <p><b>URL:</b> <%= mymeeting.meetinglink%></p>
-  <br>
-  <label for="my-dropdown-participants">Participants:</label>
-  <select id="my-dropdown-participants">
-    <% mymeeting.participants.forEach(function(element){ %>
-      <option value="<%= element %>"><%= element %></option>
-    <% }); %>
+<div class="card">
+  <div class="card-body">
+    <br>
+    <br>
+    <h1 class="card-title"><%= mymeeting.title%></h1>
+
+    <hr>
+
+    <h4 class="card-subtitle mb-2 text-muted">Meeting Details</h4>
+    <p class="card-text card-date"><%= mymeeting.date%></p>
+    <p class="card-text card-location"><%= mymeeting.location%></p>
+    <p class="card-text"><b>URL:</b> <%= mymeeting.meetinglink %></p>
+
+    <hr>
+
+    <h4 class="card-subtitle mb-2 text-muted">Participants</h4>
+    <select id='my-dropdown-participants' class="form-select" aria-label="Participants">
+      <% mymeeting.participants.forEach(function(participant) { %>
+        <option value="<%= participant %>"><%= participant %></option>
+      <% }); %>
     </select>
-    <br>
-    <br>
-  <label for="my-dropdown-topics">Topics:</label>
-  <select id="my-dropdown-topics">
-    <% mymeeting.topics.forEach(function(element){ %>
-      <option value="<%= element %>"><%= element %></option>
-    <% }); %>
-  </select>
-  <br>
-  <br>
-  <p class="card-description"><b>Description:</b><%= mymeeting.description%></p>
-  <br>
-  <button class="btn btn-primary mt-3" onclick='deleteElement("<%= mymeeting._id%>")'>Delete</button>
-  <br>
-  <br>
-  <button class="btn btn-primary mt-3" id="record-button" onclick="startRecording()">Record</button>
-  <button class="btn btn-primary mt-3" id="save-button" onclick='saveRecording("<%= mymeeting._id%>")'>Save</button>
+
+    <hr>
+
+    <h4 class="card-subtitle mb-2 text-muted">Topics</h4>
+    <select id='my-dropdown-topics' class="form-select" aria-label="Topics">
+      <% mymeeting.topics.forEach(function(topic) { %>
+        <option value="<%= topic %>"><%= topic %></option>
+      <% }); %>
+    </select>
+
+    <hr>
+
+    <h4 class="card-subtitle mb-2 text-muted">Description</h4>
+    <p class="card-text"><%= mymeeting.description %></p>
+
+    <hr>
+
+    <h4 class="card-subtitle mb-2 text-muted">Live Transcript</h4>
+    <div id="transcript-display">
+      <ul id="transcript-list"></ul>
+    </div>
+
+
+    <hr>
+
+    <button class="btn btn-danger" onclick='deleteElement("<%= mymeeting._id %>")'>Delete</button>
+    <button class="btn btn-primary" id="record-button" onclick="startRecording()">Record</button>
+    <button class="btn btn-success" id="save-button" onclick='saveRecording("<%= mymeeting._id %>")'>Save</button>
+  </div>
 </div>
 
 
@@ -79,6 +97,12 @@
                 const speaker = document.getElementById("my-dropdown-participants").value;
                 const topic = document.getElementById("my-dropdown-topics").value;
                 meetingtranscript.push({"name":speaker,"topic":topic,"transcription":transcriptionText});
+
+                // Update the display with the current speaker and topic
+                const display = document.getElementById("transcript-list");
+                const currentLine = document.createElement("li");
+                currentLine.innerHTML = `<b>${speaker} (${topic}):</b> ${transcriptionText}`;
+                display.appendChild(currentLine);
               }
             });
 
@@ -119,7 +143,11 @@
           .catch(error => {
             console.error(error);
           });
+          console.log('coucou3')
         };
+
+
+
       </script>
 
 <%- include('partials/footer.ejs'); %>
