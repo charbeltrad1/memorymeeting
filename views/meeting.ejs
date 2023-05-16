@@ -40,41 +40,66 @@
 
     <hr>
 
-    <h4 class="card-subtitle mb-2 text-muted">Live Transcript</h4>
+    <h4 class="card-subtitle mb-2 text-muted">Language</h4>
+    <select id='my-dropdown-languages' class="form-select" aria-label="languages">
+      <option value="en-US">English</option>
+      <option value="fr-FR">French</option>
+    </select>
+    
+    <hr>
+    
+    <h4 class="card-subtitle mb-2 text-muted">Transcript</h4>
     <div id="transcript-display">
-      <ul id="transcript-list"></ul>
+      <ul id="transcript-list">
+        <% mymeeting.transcription.forEach(function(sentence) { console.log(sentence);%>
+          <li><b><%= sentence["name"] %> (<%= sentence["topic"] %>):</b> <%= sentence["transcription"] %></li>
+        <% }); %>
+      </ul>
     </div>
 
     <hr>
 
     <button class="btn btn-danger" onclick='deleteElement("<%= mymeeting._id %>")'>Delete</button>
-    <button class="btn btn-primary" id="record-button" onclick="startRecording()">Record</button>
+    <button class="btn btn-primary" id="record-button" onclick='startRecording()'>Record</button>
     <button class="btn btn-success" id="save-button" onclick='saveRecording("<%= mymeeting._id %>")'>Save</button>
+
+    <hr>
+
+    <h4 class="card-subtitle mb-2 text-muted">Filters</h4>
+    <div id="filter-display">
+
+      <form id="filterForm">
+        
+        <h5><u>Topics filters:</u></h5>
+        <% mymeeting.topics.forEach(function(topic) { %>
+          <label>
+            <input type="checkbox" name="filter" value="<%= topic %>">
+            <%= topic %>
+          </label>
+          <br>
+        <% }); %>
+        <h5><u>Participants filters:</u></h5>
+
+        <% mymeeting.participants.forEach(function(participant) { %>
+          <label>
+            <input type="checkbox" name="filter" value="<%= participant %>">
+            <%= participant %>
+          </label>
+          <br>
+        <% }); %>
+        <br>
+      <button type="submit">Apply Filters</button>
+    </form>
+
+    </div>
+    
   </div>
 </div>
 
-<script>
-  console.log("test0")
-</script>
-
       <script>
 
-        //on remplit la description avec les éléments de la base de données
 
-        console.log(mymeeting.transcription)
-        //const tableau2 = mymeeting.description;
-        const tableau = ["Bonjour", "Comment ça va ?", "Bien et toi ?"]
-        const divTableau = document.getElementById("transcript-list");
-        let htmlTableau = "";
-        for (let i = 0; i < tableau.length; i++) {
-          htmlTableau += "<li>" + tableau[i] + "</li>";
-        }
-        divTableau.innerHTML = htmlTableau;
-
-
-
-
-        let meetingtranscript=[];//changer pour éviter le reset à chaque fois
+        let meetingtranscript =[];
         var button = document.getElementById("record-button");
 
         function deleteElement(id){
@@ -103,7 +128,7 @@
           .then(stream => {
             const recognition = new window.webkitSpeechRecognition();
             recognition.continuous = true; // listen for speech until stopped
-            recognition.lang = navigator.language;
+            recognition.lang = document.getElementById("my-dropdown-languages").value;
             recognition.start();
 
             recognition.addEventListener('result', event => {

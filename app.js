@@ -125,14 +125,16 @@ app.post('/save-audio', (req, res) => {
   // Get the uploaded audio blob from the request
   const transcription = req.body.transcription;
   const id = req.body.id;
-  const update = { $set: { transcription: transcription } };
 
-  Meeting.updateOne({_id:id}, update)
-  .then(result => {
-    console.log(`Documents updated: ${result.modifiedCount} modified`);
-  })
-  .catch(err => console.error(`Error updating documents: ${err}`));
-  res.json({ message: "Transcription uploaded successfully" });
+  Meeting.findOne({_id:id}, function(err,foundmeeting){
+    const update = { $set: { transcription: foundmeeting.transcription.concat(transcription) } };
+    Meeting.updateOne({_id:id}, update)
+    .then(result => {
+      console.log(`Documents updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+    res.json({ message: "Transcription uploaded successfully" });
+  });
 });
 
 app.listen(2700, function() {

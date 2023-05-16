@@ -137,7 +137,7 @@ button a:hover {
   @media (min-width: 768px) {
   
     .card {
-      max-width: 500px;
+      max-width: 100%;
       margin: 50px auto;
     }
   
@@ -191,4 +191,14 @@ button a:hover {
   .col-md-6 {
     max-width: 50%;
   }
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-container h5 {
+  margin-right: 10px;
 }
