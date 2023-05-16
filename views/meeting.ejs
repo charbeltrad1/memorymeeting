@@ -1,6 +1,7 @@
 
 <%- include('partials/header.ejs'); -%>
 
+
 <div class="card">
   <div class="card-body">
     <br>
@@ -44,7 +45,6 @@
       <ul id="transcript-list"></ul>
     </div>
 
-
     <hr>
 
     <button class="btn btn-danger" onclick='deleteElement("<%= mymeeting._id %>")'>Delete</button>
@@ -53,10 +53,28 @@
   </div>
 </div>
 
-
+<script>
+  console.log("test0")
+</script>
 
       <script>
-        let meetingtranscript=[];
+
+        //on remplit la description avec les éléments de la base de données
+
+        console.log(mymeeting.transcription)
+        //const tableau2 = mymeeting.description;
+        const tableau = ["Bonjour", "Comment ça va ?", "Bien et toi ?"]
+        const divTableau = document.getElementById("transcript-list");
+        let htmlTableau = "";
+        for (let i = 0; i < tableau.length; i++) {
+          htmlTableau += "<li>" + tableau[i] + "</li>";
+        }
+        divTableau.innerHTML = htmlTableau;
+
+
+
+
+        let meetingtranscript=[];//changer pour éviter le reset à chaque fois
         var button = document.getElementById("record-button");
 
         function deleteElement(id){
@@ -139,11 +157,12 @@
               throw new Error("Failed to upload audio");
             }
             console.log("Transcript uploaded successfully");
+            console.log(response.message);
           })
           .catch(error => {
+            console.log("error");
             console.error(error);
           });
-          console.log('coucou3')
         };
 
 
