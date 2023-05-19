@@ -51,8 +51,8 @@
     <h4 class="card-subtitle mb-2 text-muted">Transcript</h4>
     <div id="transcript-display">
       <ul id="transcript-list">
-        <% mymeeting.transcription.forEach(function(sentence) { console.log(sentence);%>
-          <li><b><%= sentence["name"] %> (<%= sentence["topic"] %>):</b> <%= sentence["transcription"] %></li>
+        <% mymeeting.transcription.forEach(function(sentence) { %>
+          <li><b>[<%= sentence["name"] %>] (<%= sentence["topic"] %>):</b> <%= sentence["transcription"] %></li>
         <% }); %>
       </ul>
     </div>
@@ -73,7 +73,7 @@
         <h5><u>Topics filters:</u></h5>
         <% mymeeting.topics.forEach(function(topic) { %>
           <label>
-            <input type="checkbox" name="filter" value="<%= topic %>">
+            <input type="checkbox" name="topicfilter" value="<%= topic %>">
             <%= topic %>
           </label>
           <br>
@@ -82,7 +82,7 @@
 
         <% mymeeting.participants.forEach(function(participant) { %>
           <label>
-            <input type="checkbox" name="filter" value="<%= participant %>">
+            <input type="checkbox" name="participantfilter" value="<%= participant %>">
             <%= participant %>
           </label>
           <br>
@@ -190,7 +190,42 @@
           });
         };
 
+        document.getElementById("filterForm").addEventListener("submit", function(event) {
+          event.preventDefault(); // Prevents the form from being submitted and the page from refreshing
+          
+          var transcriptItems = document.querySelectorAll("#transcript-list li");
+          transcriptItems.forEach(function(item) {
+            item.style.display = "block";
+          });
+          var checkedParticipants = [...document.getElementsByName("participantfilter")].filter(c=>c.checked).map(c=>c.value);
+          var checkedTopics = [...document.getElementsByName("topicfilter")].filter(c=>c.checked).map(c=>c.value);
 
+          transcriptItems.forEach(function(item) {
+              var text = item.querySelector("b").textContent;
+
+              var regex1 = /\[(.*?)\]/g;
+              var participant = (text.match(regex1)[0]).slice(1, -1);
+              var regex2 =  /\((.*?)\)/g;
+              var topic = (text.match(regex2)[0]).slice(1,-1);
+              if(checkedParticipants.length>0 && checkedTopics.length>0){
+                if(!checkedTopics.includes(topic) || !checkedParticipants.includes(participant)){
+                  item.style.display = "none";
+                }
+              }else if(checkedParticipants.length===0 && checkedTopics.length===0){
+                item.style.display = "block";
+              }else{
+                if(!checkedTopics.includes(topic) && !checkedParticipants.includes(participant)){
+                  item.style.display = "none";
+
+                }
+              }
+
+          });
+
+          // Get all the selected checkbox values
+
+
+        });
 
       </script>
 
