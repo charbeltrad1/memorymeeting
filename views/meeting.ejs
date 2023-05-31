@@ -1,6 +1,130 @@
 
 <%- include('partials/header.ejs'); -%>
+<script>
+  let meetingtranscript =[];
+  var button = document.getElementById("record-button");
 
+
+  function toggleNote(index) {
+    const noteDiv = document.getElementById("note-" + index);
+    noteDiv.classList.toggle("note-show");
+  }
+
+  function saveNote(id_meeting, index) {
+    const noteInput = document.getElementById("note-input-" + index);
+    try {
+      mymeeting.transcription[index].note = noteInput.value;
+
+    } catch (e) {
+      console.log(e);
+    }
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({indexNote:index, id_meeting:id_meeting})
+    }
+    fetch('/saveNote', options)
+            .then(response => {
+              // handle the response from the server
+              console.log(response);
+            })
+            .catch(error => {
+              // handle any errors that occur during the request
+              console.error(error);
+            });
+    console.log("Note for sentence " + index + ": " + note);
+  }
+
+  function deleteElement(id){
+    console.log(id);
+    fetch('/deleteElement', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({_id:id})
+    })
+            .then(response => {
+              // handle the response from the server
+              console.log(response);
+              location.replace("/meetings")
+            })
+            .catch(error => {
+              // handle any errors that occur during the request
+              console.error(error);
+            });
+  }
+
+  const startRecording = () => {
+    const constraints = { audio: true };
+    navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+              const recognition = new window.webkitSpeechRecognition();
+              recognition.continuous = true; // listen for speech until stopped
+              recognition.lang = document.getElementById("my-dropdown-languages").value;
+              recognition.start();
+
+              recognition.addEventListener('result', event => {
+                button.style.backgroundColor = "green";
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                  const result = event.results[i];
+                  const transcriptionText = result[0].transcript;
+                  const speaker = document.getElementById("my-dropdown-participants").value;
+                  const topic = document.getElementById("my-dropdown-topics").value;
+                  const note = document.getElementById("note-input-" + i).value;
+                  meetingtranscript.push({"name":speaker,"topic":topic,"transcription":transcriptionText,"note":note});
+
+                  // Update the display with the current speaker and topic
+                  const display = document.getElementById("transcript-list");
+                  const currentLine = document.createElement("li");
+                  currentLine.innerHTML = `<b>${speaker} (${topic}):</b> ${transcriptionText}`;
+                  display.appendChild(currentLine);
+                }
+              });
+
+              recognition.addEventListener('end', () => {
+                button.style.backgroundColor = "#2980B9";
+
+                // Speech recognition has ended
+                console.log('Speech recognition has ended.');
+
+                // Stop the media stream
+                stream.getTracks().forEach(track => track.stop());
+              });
+            })
+            .catch(error => {
+              console.error('Error accessing microphone:', error);
+            });
+
+  };
+
+  const saveRecording = async (id) => {
+    console.log(meetingtranscript);
+    recording = false;
+    let options = {
+      method: "POST",
+      body: JSON.stringify({"id":id,"transcription":meetingtranscript}),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    };
+    fetch("/save-audio", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to upload audio");
+              }
+              console.log("Transcript uploaded successfully");
+              console.log(response.message);
+            })
+            .catch(error => {
+              console.log("error :");
+              console.error(error);
+            });
+  };
+</script>
 
 <div class="card">
   <div class="card-body">
@@ -47,15 +171,33 @@
     </select>
     
     <hr>
-    
     <h4 class="card-subtitle mb-2 text-muted">Transcript</h4>
     <div id="transcript-display">
       <ul id="transcript-list">
-        <% mymeeting.transcription.forEach(function(sentence) { %>
-          <li><b>[<%= sentence["name"] %>] (<%= sentence["topic"] %>):</b> <%= sentence["transcription"] %></li>
+        <% mymeeting.transcription.forEach(function(sentence, index) { %>
+          <li>
+            <b>[<%= sentence["name"] %>] (<%= sentence["topic"] %>):</b>
+            <span class="transcription-text"><%= sentence["transcription"] %></span>
+            <button class="note-toggle" onclick="toggleNote(<%= index %>)">+</button>
+            <div class="note" id="note-<%= index %>">
+              <textarea class="note-input" id="note-input-<%= index %>" rows="2" cols="30" placeholder="Add a note..."></textarea>
+              <button class="note-save" onclick="saveNote('<%= mymeeting._id %>',<%= index %>)">Save</button>
+            </div>
+          </li>
         <% }); %>
       </ul>
     </div>
+
+    <style>
+      .note {
+        display: none;
+      }
+
+      .note-show {
+        display: block;
+      }
+    </style>
+
 
     <hr>
 
@@ -73,7 +215,7 @@
         <h5><u>Topics filters:</u></h5>
         <% mymeeting.topics.forEach(function(topic) { %>
           <label>
-            <input type="checkbox" name="topicfilter" value="<%= topic %>">
+            <input type="checkbox" name="filter" value="<%= topic %>">
             <%= topic %>
           </label>
           <br>
@@ -82,7 +224,7 @@
 
         <% mymeeting.participants.forEach(function(participant) { %>
           <label>
-            <input type="checkbox" name="participantfilter" value="<%= participant %>">
+            <input type="checkbox" name="filter" value="<%= participant %>">
             <%= participant %>
           </label>
           <br>
@@ -95,138 +237,5 @@
     
   </div>
 </div>
-
-      <script>
-
-
-        let meetingtranscript =[];
-        var button = document.getElementById("record-button");
-
-        function deleteElement(id){
-          console.log(id);
-          fetch('/deleteElement', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({_id:id})
-          })
-          .then(response => {
-            // handle the response from the server
-            console.log(response);
-            location.replace("/meetings")
-          })
-          .catch(error => {
-            // handle any errors that occur during the request
-            console.error(error);
-          });
-        }
-
-        const startRecording = () => {
-          const constraints = { audio: true };
-          navigator.mediaDevices.getUserMedia({ audio: true })
-          .then(stream => {
-            const recognition = new window.webkitSpeechRecognition();
-            recognition.continuous = true; // listen for speech until stopped
-            recognition.lang = document.getElementById("my-dropdown-languages").value;
-            recognition.start();
-
-            recognition.addEventListener('result', event => {
-              button.style.backgroundColor = "green";
-
-              for (let i = event.resultIndex; i < event.results.length; i++) {
-                const result = event.results[i];
-                const transcriptionText = result[0].transcript;
-                const speaker = document.getElementById("my-dropdown-participants").value;
-                const topic = document.getElementById("my-dropdown-topics").value;
-                meetingtranscript.push({"name":speaker,"topic":topic,"transcription":transcriptionText});
-
-                // Update the display with the current speaker and topic
-                const display = document.getElementById("transcript-list");
-                const currentLine = document.createElement("li");
-                currentLine.innerHTML = `<b>${speaker} (${topic}):</b> ${transcriptionText}`;
-                display.appendChild(currentLine);
-              }
-            });
-
-            recognition.addEventListener('end', () => {
-              button.style.backgroundColor = "#2980B9";
-
-              // Speech recognition has ended
-              console.log('Speech recognition has ended.');
-
-              // Stop the media stream
-              stream.getTracks().forEach(track => track.stop());
-            });
-          })
-          .catch(error => {
-            console.error('Error accessing microphone:', error);
-          });
-
-        };
-
-
-        const saveRecording = async (id) => {
-          console.log(meetingtranscript);
-          recording = false;
-          let options = {
-            method: "POST",
-            body: JSON.stringify({"id":id,"transcription":meetingtranscript}),
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          };
-          fetch("/save-audio", options)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error("Failed to upload audio");
-            }
-            console.log("Transcript uploaded successfully");
-            console.log(response.message);
-          })
-          .catch(error => {
-            console.log("error");
-            console.error(error);
-          });
-        };
-
-        document.getElementById("filterForm").addEventListener("submit", function(event) {
-          event.preventDefault(); // Prevents the form from being submitted and the page from refreshing
-          
-          var transcriptItems = document.querySelectorAll("#transcript-list li");
-          transcriptItems.forEach(function(item) {
-            item.style.display = "block";
-          });
-          var checkedParticipants = [...document.getElementsByName("participantfilter")].filter(c=>c.checked).map(c=>c.value);
-          var checkedTopics = [...document.getElementsByName("topicfilter")].filter(c=>c.checked).map(c=>c.value);
-
-          transcriptItems.forEach(function(item) {
-              var text = item.querySelector("b").textContent;
-
-              var regex1 = /\[(.*?)\]/g;
-              var participant = (text.match(regex1)[0]).slice(1, -1);
-              var regex2 =  /\((.*?)\)/g;
-              var topic = (text.match(regex2)[0]).slice(1,-1);
-              if(checkedParticipants.length>0 && checkedTopics.length>0){
-                if(!checkedTopics.includes(topic) || !checkedParticipants.includes(participant)){
-                  item.style.display = "none";
-                }
-              }else if(checkedParticipants.length===0 && checkedTopics.length===0){
-                item.style.display = "block";
-              }else{
-                if(!checkedTopics.includes(topic) && !checkedParticipants.includes(participant)){
-                  item.style.display = "none";
-
-                }
-              }
-
-          });
-
-          // Get all the selected checkbox values
-
-
-        });
-
-      </script>
 
 <%- include('partials/footer.ejs'); %>

@@ -62,7 +62,6 @@ app.get("/meetings/:p", function(req, res) {
   const requestedid = req.params.p;
 
   Meeting.findOne({_id:requestedid}, function(err,foundmeeting){
-    console.log(foundmeeting);
     res.render("meeting", {mymeeting: foundmeeting});
   });
 });
@@ -121,6 +120,19 @@ app.post("/deleteElement", function(request, response, next) {
   });
 });
 
+app.post(/saveNote/, function(request, response, next) {
+  console.log(request.body);
+  const id_meeting = request.body.id_meeting;
+  const note = request.body.note;
+  const index = request.body.index;
+  let update= {$set: { [`transcription.${index}.note`]: note } };
+    Meeting.updateOne({_id:id_meeting}, update)
+    .then(result => {
+        console.log(`Documents updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+});
+
 app.post('/save-audio', (req, res) => {
   // Get the uploaded audio blob from the request
   const transcription = req.body.transcription;
@@ -136,6 +148,39 @@ app.post('/save-audio', (req, res) => {
     res.json({ message: "Transcription uploaded successfully" });
   });
 });
+
+
+
+
+function applyFilters(event) {
+  console.log("applyFilters")
+  event.preventDefault(); // Empêche le rechargement de la page lors de la soumission du formulaire
+
+  // Récupérer les éléments cochés
+  const checkedFilters = Array.from(document.querySelectorAll('input[name="filter"]:checked'))
+      .map(filter => filter.value);
+
+  // Parcourir les éléments de la liste et les afficher ou les masquer en fonction des filtres sélectionnés
+  const transcriptList = document.getElementById('transcript-list');
+  const listItems = transcriptList.getElementsByTagName('li');
+
+  for (const listItem of listItems) {
+    const topic = listItem.querySelector('.topic').textContent;
+    const participant = listItem.querySelector('.participant').textContent;
+
+    if (checkedFilters.includes(topic) || checkedFilters.includes(participant)) {
+      listItem.style.display = ''; // Afficher l'élément
+    } else {
+      listItem.style.display = 'none'; // Masquer l'élément
+    }
+  }
+}
+
+
+
+
+
+
 
 app.listen(2700, function() {
   console.log("Server started on port 2700");
