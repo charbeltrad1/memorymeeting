@@ -1,46 +1,46 @@
 
 <%- include('partials/header.ejs'); -%>
 
-
 <div class="card">
   <div class="card-body">
     <br>
     <br>
-    <h1 class="card-title"><%= mymeeting.title%></h1>
+    <h1 class="card-title downloadclass" ><%= mymeeting.title%></h1>
+    <button class="btn btn-danger" onclick='deleteElement("<%= mymeeting._id %>")'>Delete</button>
 
     <hr>
 
-    <h4 class="card-subtitle mb-2 text-muted">Meeting Details</h4>
-    <p class="card-text card-date"><%= mymeeting.date%></p>
-    <p class="card-text card-location"><%= mymeeting.location%></p>
-    <p class="card-text"><b>URL:</b> <%= mymeeting.meetinglink %></p>
+    <h4 class="card-subtitle mb-2 text-muted downloadclass">Meeting Details</h4>
+    <p class="card-text card-date downloadclass"><%= mymeeting.date%></p>
+    <p class="card-text card-location downloadclass"><%= mymeeting.location%></p>
+    <p class="card-text downloadclass"><b>URL:</b> <%= mymeeting.meetinglink %></p>
 
-    <hr>
+    <hr class="downloadclass">
 
-    <h4 class="card-subtitle mb-2 text-muted">Participants</h4>
-    <select id='my-dropdown-participants' class="form-select" aria-label="Participants">
+    <h4 class="card-subtitle mb-2 text-muted downloadclass">Participants</h4>
+    <select id='my-dropdown-participants downloadclass' class="form-select downloadclass" aria-label="Participants">
       <% mymeeting.participants.forEach(function(participant) { %>
         <option value="<%= participant %>"><%= participant %></option>
       <% }); %>
     </select>
 
-    <hr>
+    <hr class="downloadclass">
 
-    <h4 class="card-subtitle mb-2 text-muted">Topics</h4>
-    <select id='my-dropdown-topics' class="form-select" aria-label="Topics">
+    <h4 class="card-subtitle mb-2 text-muted downloadclass">Topics</h4>
+    <select id='my-dropdown-topics' class="form-select downloadclass" aria-label="Topics">
       <% mymeeting.topics.forEach(function(topic) { %>
         <option value="<%= topic %>"><%= topic %></option>
       <% }); %>
     </select>
 
-    <hr>
+    <hr class="downloadclass">
 
-    <h4 class="card-subtitle mb-2 text-muted">Description</h4>
-    <p class="card-text"><%= mymeeting.description %></p>
+    <h4 class="card-subtitle mb-2 text-muted downloadclass">Description</h4>
+    <p class="card-text downloadclass"><%= mymeeting.description %></p>
 
-    <hr>
+    <hr class="downloadclass">
 
-    <h4 class="card-subtitle mb-2 text-muted">Language</h4>
+    <h4 class="card-subtitle mb-2 text-muted ">Language</h4>
     <select id='my-dropdown-languages' class="form-select" aria-label="languages">
       <option value="en-US">English</option>
       <option value="fr-FR">French</option>
@@ -48,18 +48,78 @@
     
     <hr>
     
-    <h4 class="card-subtitle mb-2 text-muted">Transcript</h4>
+    <h4 class="card-subtitle mb-2 text-muted downloadclass">Transcript</h4>
+    <br>
     <div id="transcript-display">
+      <div class="tags-input">
+        <br>
+        <h3 class="downloadclass">List of tags</h3>
+        <ul class="downloadclass" id="tagsList">
+          <% mymeeting.tags.forEach(function(t) { %>
+            <li><span style="background-color: <%= t.color %>;">
+              <%= t.text %> : <%= t.tag %>
+            </span></li>
+          <% }); %>
+        </ul>
+        <br>
+        <select class="tags-select" name="" id="">
+          <option disabled selected>Choose a tag</option>
+          <% tags.forEach(function(t) { %>
+            <option style="background-color: <%= t.color %>;" value="<%= t.name + t.color %>"><%= t.name %></option>
+          <% }); %>
+        </select>
+        <input type="text" id="tag-input" placeholder="Tag value">
+        <button onclick='addTag("<%= mymeeting._id %>")'>Submit tag</button>
+        <br>
+        <br>
+
+      </div>
+      <br class="downloadclass">
       <ul id="transcript-list">
-        <% mymeeting.transcription.forEach(function(sentence) { %>
-          <li><b>[<%= sentence["name"] %>] (<%= sentence["topic"] %>):</b> <%= sentence["transcription"] %></li>
-        <% }); %>
+        <% mymeeting.transcription.forEach(function(sentence,index) { %>
+          <li>
+            <b class="downloadclass">[<%= sentence["name"] %>]
+              <span class="topic">(<%= sentence["topic"] %>)
+              </span>:
+            </b>
+            &nbsp;&nbsp;&nbsp;
+          <button class="note-toggle" onclick='toggleNote("<%= index %>")'>See comment</button>
+          <button class="note-toggle" onclick='hideNote("<%= index %>")'>Hide comment</button>
+          <button class="note-toggle" onclick='toggletype("<%= index %>")'>See Type</button>
+          <button class="note-toggle" onclick='hidetype("<%= index %>")'>Hide Type</button>
+
+
+          <button class="note-toggle" onclick='deletetranscription("<%= index %>","<%= mymeeting._id %>")'>delete sentence</button>
+
+          <br class="downloadclass">
+          <div  class="form-control transcriptiontextcolored downloadclass" type="text" >
+            <%= sentence["transcription"] %>
+          </div>
+          <br class="downloadclass">
+          <textarea  class="form-control transcriptionText"  rows=3 id='transcription-<%= index %>' type="text"  onkeydown='editTranscription(event,"<%= index %>","<%= mymeeting._id %>")'>
+            <%= sentence["transcription"] %>
+          </textarea>
+          <br>
+          <textarea class="comment-input downloadclass" id='comment-<%= index %>' onkeydown='saveComment(event,"<%= index %>","<%= mymeeting._id %>")'><%= sentence["comment"] %></textarea>
+          <br>
+          <br>
+          <div class="type-input" id="type-<%= index %>">
+            <br>
+            <p class="downloadclass">Current Type is <b id="real-type-<%= index %>"><%= sentence["type"] %></b></p>
+            <select class="type-select-<%= index %>" onchange='changeType("<%= index %>","<%= mymeeting._id %>")'>
+                <option disabled selected>Change Type</option>
+            </select>
+            <br>
+            <br>
+          </div>
+          <br>
+          </li>
+          <br>
+          <% }); %>
       </ul>
     </div>
 
-    <hr>
 
-    <button class="btn btn-danger" onclick='deleteElement("<%= mymeeting._id %>")'>Delete</button>
     <button class="btn btn-primary" id="record-button" onclick='startRecording()'>Record</button>
     <button class="btn btn-success" id="save-button" onclick='saveRecording("<%= mymeeting._id %>")'>Save</button>
 
@@ -92,12 +152,50 @@
     </form>
 
     </div>
+    <br>
+    <br>
     
+    <button id="downloadButton" onclick="download()">Download Card</button>
+
   </div>
+
 </div>
 
       <script>
+        
+        (function() {
+            var id = '<%= mymeeting._id %>';
+            fetch('/getTags', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({_id:id})
+          })
+          .then(response => {
+              return response.json();
+          }).then(meetingTags=>{
+            // handle the response from the server
+            var textareas = document.getElementsByClassName('transcriptiontextcolored');
+            for (var i = 0; i < textareas.length; i++) {
+              var textarea = textareas[i];
+              var text = textarea.innerHTML.trimStart();
+              meetingTags.forEach(tag => {
+                console.log(tag)
+                var regex = new RegExp('\\b(' + tag.text + ')\\b', 'gi');
+                text = text.replace(regex, '<span style="color: ' + tag.color + ';">$1</span>');
+              });
+              console.log(text);
+              textarea.innerHTML = text;
+            }              
+          })
+          .catch(error => {
+            // handle any errors that occur during the request
+            console.error(error);
+          });
+            
 
+        })();
 
         let meetingtranscript =[];
         var button = document.getElementById("record-button");
@@ -139,7 +237,9 @@
                 const transcriptionText = result[0].transcript;
                 const speaker = document.getElementById("my-dropdown-participants").value;
                 const topic = document.getElementById("my-dropdown-topics").value;
-                meetingtranscript.push({"name":speaker,"topic":topic,"transcription":transcriptionText});
+                if(transcriptionText.length>=2){
+                  meetingtranscript.push({"name":speaker,"topic":topic,"transcription":transcriptionText,"comment":"","type":"Default"});
+                }
 
                 // Update the display with the current speaker and topic
                 const display = document.getElementById("transcript-list");
@@ -183,13 +283,175 @@
             }
             console.log("Transcript uploaded successfully");
             console.log(response.message);
+            location.reload();
           })
           .catch(error => {
             console.log("error");
             console.error(error);
           });
         };
+        function toggleNote(index) {
+          const noteDiv = document.getElementById("comment-" + index.toString());
+          noteDiv.style.display = 'block';
+        }
+        function hideNote(index) {
+          const noteDiv = document.getElementById("comment-" + index.toString());
+          noteDiv.style.display = 'none';
+        }
+        function toggletype(index) {
+          const noteDiv = document.getElementById("type-" + index.toString());
+          noteDiv.style.display = 'block';
+        }
+        function hidetype(index) {
+          const noteDiv = document.getElementById("type-" + index.toString());
+          noteDiv.style.display = 'none';
+        }
+        function deletetranscription(index,meetingId){
+          console.log(meetingId);
+            let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"transcriptionId":index}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/delete-transcription", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to delete transcription");
+              }
+              console.log("transcription deleted successfully");
+              console.log(response.message);
+              location.reload();
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });
+        }
 
+        function changeType(sentanceid,meetingId) {
+          // Perform actions after selecting an option
+          // For example, retrieve the selected value
+          var selectedValue = document.querySelector('.type-select-'+sentanceid).value;
+          let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"sentanceid":sentanceid,"type":selectedValue}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/change-type", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to edit type");
+              }
+              console.log("type added successfully");
+              console.log(response.message);
+              let realType = document.getElementById("real-type-"+sentanceid);
+              realType.innerHTML=selectedValue;
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });          
+        }
+        function addTag(meetingId){
+          let tagInput= document.getElementById("tag-input").value;
+          let tagObj = document.querySelector('.tags-select').value;
+          let tagarr = tagObj.split("#");
+          var selectedTag = tagarr[0] ;
+          var color = "#"+tagarr[1];
+
+          if(tagInput.length===0 || selectedTag==="Choose a tag"){
+            alert("Please verify that you filled all the required parameters!!");
+          }else{
+            console.log(selectedTag);
+            console.log(tagInput);
+            let options = {
+                method: "POST",
+                body: JSON.stringify({"meetingId":meetingId,"tag":selectedTag,"color":color,"input":tagInput}),
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+              };
+              fetch("/add-tag", options)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Failed to add tag");
+                }
+                console.log("tag added successfully");
+                var ul = document.getElementById("tagsList");
+                var li = document.createElement("li");
+                var span = document.createElement("span");
+                span.style.backgroundColor = color;
+                var textNode = document.createTextNode(tagInput + " : " + selectedTag);
+                span.appendChild(textNode);
+                li.appendChild(span);
+                ul.appendChild(li);
+                document.getElementById("tag-input").value ="";
+                document.querySelector('.tags-select').selectedIndex = 0;
+              })
+              .catch(error => {
+                console.log("error");
+                console.error(error);
+              });  
+
+          }
+        }
+        function saveComment(event,commentId,meetingId){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let commentContent= document.getElementById("comment-"+commentId.toString()).value;
+            let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"commentId":commentId,"commentContent":commentContent}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/save-comment", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to upload audio");
+              }
+              console.log("Comment added successfully");
+              console.log(response.message);
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });
+          }
+        }
+
+        function editTranscription(event,transcriptionId,meetingId){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let transcriptionContent= document.getElementById("transcription-"+transcriptionId.toString()).value;
+            let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"transcriptionId":transcriptionId,"transcriptionContent":transcriptionContent}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/update-transcription", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to upload audio");
+              }
+              console.log("transcription updated successfully");
+              console.log(response.message);
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });
+          }
+        }
         document.getElementById("filterForm").addEventListener("submit", function(event) {
           event.preventDefault(); // Prevents the form from being submitted and the page from refreshing
           
@@ -205,8 +467,10 @@
 
               var regex1 = /\[(.*?)\]/g;
               var participant = (text.match(regex1)[0]).slice(1, -1);
+
               var regex2 =  /\((.*?)\)/g;
               var topic = (text.match(regex2)[0]).slice(1,-1);
+
               if(checkedParticipants.length>0 && checkedTopics.length>0){
                 if(!checkedTopics.includes(topic) || !checkedParticipants.includes(participant)){
                   item.style.display = "none";
@@ -216,17 +480,45 @@
               }else{
                 if(!checkedTopics.includes(topic) && !checkedParticipants.includes(participant)){
                   item.style.display = "none";
-
                 }
               }
 
           });
 
-          // Get all the selected checkbox values
-
-
         });
 
+        function download(){
+      // Get the elements with the desired class
+      var elements = document.getElementsByClassName('downloadclass');
+
+      // Create a container element to hold the elements
+      var container = document.createElement('div');
+
+      // Iterate through the elements and append them to the container
+      for (var i = 0; i < elements.length; i++) {
+        container.appendChild(elements[i].cloneNode(true));
+      }
+
+      // Get the HTML content of the container
+      var htmlContent = container.innerHTML;
+
+      // Create a new blob with the HTML content
+      var blob = new Blob([htmlContent], {type: 'text/html'});
+
+      // Create a temporary URL for the blob
+      var url = URL.createObjectURL(blob);
+
+      // Create a link element
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = 'elements.html';
+
+      // Simulate a click event to trigger the download
+      link.click();
+
+      // Clean up the temporary URL object
+      URL.revokeObjectURL(url);
+    }
       </script>
 
 <%- include('partials/footer.ejs'); %>

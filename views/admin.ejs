@@ -1,0 +1,59 @@
+<%- include('partials/header.ejs'); -%>
+<br>
+<br>
+<br>
+<div class="adminpage">
+  <div class="left-section">
+
+    <div class="box" id="headingbox">
+      <h1> Types </h1>
+    </div>
+    
+    <div class="box">
+      <% types.forEach(function(element){ %>
+        <form class="" action="/deleteTypes" method="post">
+          <div class="item">
+            <input type="checkbox" name="checkboxx" value="<%= element._id %>" onChange="this.form.submit()" class="custom-checkbox">
+            <p><%=  element.name  %></p>
+          </div>
+          <input type="hidden" name="listName" value="tag"></input>
+        </form>
+    
+        <% }); %>
+    
+        <form class="item" action="/postTypes" method="post">
+          <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
+          <button type="submit" name="list" value="tag">+</button>
+        </form>
+    </div>
+  </div>
+  <div class="right-section">
+
+    <div class="box" id="headingbox">
+      <h1> Tags </h1>
+    </div>
+    
+    <div class="box">
+      <% tags.forEach(function(element){ %>
+        <form class="" action="/deleteTags" method="post">
+          <div class="item">
+            <input type="checkbox" name="checkboxx" value="<%= element._id %>" class="custom-checkbox" onChange="this.form.submit()">
+            <p><%=  element.name  %></p>
+          </div>
+          <input type="hidden" name="listName" value="tag"></input>
+        </form>
+    
+        <% }); %>
+    
+        <form class="item" action="/postTags" method="post">
+          <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
+          <button type="submit" name="list" value="tag">+</button>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+<%- include('partials/footer.ejs'); %>
