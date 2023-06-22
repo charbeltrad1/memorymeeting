@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const _ = require('lodash');
 
-mongoose.connect("mongodb://localhost:27017/memorymeeting", {
+mongoose.connect("mongodb+srv://adminCharbel:P1wSG@cluster0.kceghws.mongodb.net/?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.log("Connected to DB!")).catch(e => console.log(e));
