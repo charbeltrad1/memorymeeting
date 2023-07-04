@@ -5,42 +5,40 @@
   <div class="card-body">
     <br>
     <br>
-    <h1 class="card-title downloadclass" ><%= mymeeting.title%></h1>
+    <h1 class="card-title " ><%= mymeeting.title%></h1>
     <button class="btn btn-danger" onclick='deleteElement("<%= mymeeting._id %>")'>Delete</button>
 
     <hr>
+    <h4 class="card-subtitle mb-2 text-muted ">Meeting Details</h4>
+    <p class="card-text card-date "><%= mymeeting.date%></p>
+    <p class="card-text card-location "><%= mymeeting.location%></p>
+    <p class="card-text "><b>URL:</b> <%= mymeeting.meetinglink %></p>
 
-    <h4 class="card-subtitle mb-2 text-muted downloadclass">Meeting Details</h4>
-    <p class="card-text card-date downloadclass"><%= mymeeting.date%></p>
-    <p class="card-text card-location downloadclass"><%= mymeeting.location%></p>
-    <p class="card-text downloadclass"><b>URL:</b> <%= mymeeting.meetinglink %></p>
+    <hr class="">
 
-    <hr class="downloadclass">
-
-    <h4 class="card-subtitle mb-2 text-muted downloadclass">Participants</h4>
-    <select id='my-dropdown-participants downloadclass' class="form-select downloadclass" aria-label="Participants">
+    <h4 class="card-subtitle mb-2 text-muted ">Participants</h4>
+    <select id='my-dropdown-participants ' class="form-select " aria-label="Participants">
       <% mymeeting.participants.forEach(function(participant) { %>
         <option value="<%= participant %>"><%= participant %></option>
       <% }); %>
     </select>
 
-    <hr class="downloadclass">
+    <hr class="">
 
-    <h4 class="card-subtitle mb-2 text-muted downloadclass">Topics</h4>
-    <select id='my-dropdown-topics' class="form-select downloadclass" aria-label="Topics">
+    <h4 class="card-subtitle mb-2 text-muted ">Topics</h4>
+    <select id='my-dropdown-topics' class="form-select " aria-label="Topics">
       <% mymeeting.topics.forEach(function(topic) { %>
         <option value="<%= topic %>"><%= topic %></option>
       <% }); %>
     </select>
+    <hr class="">
 
-    <hr class="downloadclass">
+    <h4 class="card-subtitle mb-2 text-muted ">Description</h4>
+    <p class="card-text "><%= mymeeting.description %></p>
 
-    <h4 class="card-subtitle mb-2 text-muted downloadclass">Description</h4>
-    <p class="card-text downloadclass"><%= mymeeting.description %></p>
+    <hr class="">
 
-    <hr class="downloadclass">
-
-    <h4 class="card-subtitle mb-2 text-muted ">Language</h4>
+    <h4 class="card-subtitle mb-2 text-muted">Language</h4>
     <select id='my-dropdown-languages' class="form-select" aria-label="languages">
       <option value="en-US">English</option>
       <option value="fr-FR">French</option>
@@ -48,13 +46,13 @@
     
     <hr>
     
-    <h4 class="card-subtitle mb-2 text-muted downloadclass">Transcript</h4>
+    <h4 class="card-subtitle mb-2 text-muted ">Transcript</h4>
     <br>
     <div id="transcript-display">
       <div class="tags-input">
         <br>
-        <h3 class="downloadclass">List of tags</h3>
-        <ul class="downloadclass" id="tagsList">
+        <h3 class="">List of tags</h3>
+        <ul class="" id="tagsList">
           <% mymeeting.tags.forEach(function(t) { %>
             <li><span style="background-color: <%= t.color %>;">
               <%= t.text %> : <%= t.tag %>
@@ -68,50 +66,47 @@
             <option style="background-color: <%= t.color %>;" value="<%= t.name + t.color %>"><%= t.name %></option>
           <% }); %>
         </select>
-        <input type="text" id="tag-input" placeholder="Tag value">
+        <input type="text" id="tag-input" placeholder="Tag Word">
         <button onclick='addTag("<%= mymeeting._id %>")'>Submit tag</button>
         <br>
         <br>
 
       </div>
-      <br class="downloadclass">
+      <br class="">
       <ul id="transcript-list">
         <% mymeeting.transcription.forEach(function(sentence,index) { %>
           <li>
-            <b class="downloadclass">[<%= sentence["name"] %>]
+            <b>[<%= sentence["name"] %>]
               <span class="topic">(<%= sentence["topic"] %>)
-              </span>:
+              </span>
+              <span>|<%= sentence["type"] %>|
+              </span>
             </b>
-            &nbsp;&nbsp;&nbsp;
+            :&nbsp;&nbsp;&nbsp;
           <button class="note-toggle" onclick='toggleNote("<%= index %>")'>See comment</button>
           <button class="note-toggle" onclick='hideNote("<%= index %>")'>Hide comment</button>
-          <button class="note-toggle" onclick='toggletype("<%= index %>")'>See Type</button>
-          <button class="note-toggle" onclick='hidetype("<%= index %>")'>Hide Type</button>
-
-
+          <button class="note-toggle" onclick='toggleedit("<%= index %>")'>Edit</button>
+          <button class="note-toggle" onclick='hideedit("<%= index %>")'>Quit edit mode</button>
           <button class="note-toggle" onclick='deletetranscription("<%= index %>","<%= mymeeting._id %>")'>delete sentence</button>
-
-          <br class="downloadclass">
-          <div  class="form-control transcriptiontextcolored downloadclass" type="text" >
+          <select class="type-select-<%= index %>" onchange='changeType("<%= index %>","<%= mymeeting._id %>")'>
+            <option value='<%= sentence["type"] %>' selected><%= sentence["type"] %></option>
+            <% types.forEach(function(type) { %>
+              <% if (type.name != sentence["type"]) { %>
+                <option value="<%= type.name %>"><%= type.name %></option>
+              <% } %>
+                
+            <% }); %>
+          </select>
+          
+          <br>
+          <div  class="form-control transcriptiontextcolored " type="text" >
             <%= sentence["transcription"] %>
           </div>
-          <br class="downloadclass">
-          <textarea  class="form-control transcriptionText"  rows=3 id='transcription-<%= index %>' type="text"  onkeydown='editTranscription(event,"<%= index %>","<%= mymeeting._id %>")'>
-            <%= sentence["transcription"] %>
-          </textarea>
+          <br class="">
+          <textarea  class="form-control transcriptionText"  rows=3 id='transcription-<%= index %>' type="text"  onkeydown='editTranscription(event,"<%= index %>","<%= mymeeting._id %>")'><%= sentence["transcription"] %></textarea>
           <br>
-          <textarea class="comment-input downloadclass" id='comment-<%= index %>' onkeydown='saveComment(event,"<%= index %>","<%= mymeeting._id %>")'><%= sentence["comment"] %></textarea>
+          <textarea class="comment-input " id='comment-<%= index %>' onkeydown='saveComment(event,"<%= index %>","<%= mymeeting._id %>")'><%= sentence["comment"] %></textarea>
           <br>
-          <br>
-          <div class="type-input" id="type-<%= index %>">
-            <br>
-            <p class="downloadclass">Current Type is <b id="real-type-<%= index %>"><%= sentence["type"] %></b></p>
-            <select class="type-select-<%= index %>" onchange='changeType("<%= index %>","<%= mymeeting._id %>")'>
-                <option disabled selected>Change Type</option>
-            </select>
-            <br>
-            <br>
-          </div>
           <br>
           </li>
           <br>
@@ -144,6 +139,16 @@
           <label>
             <input type="checkbox" name="participantfilter" value="<%= participant %>">
             <%= participant %>
+          </label>
+          <br>
+        <% }); %>
+        
+        <h5><u>Types filters:</u></h5>
+
+        <% types.forEach(function(type) { %>
+          <label>
+            <input type="checkbox" name="typefilter" value="<%= type.name %>">
+            <%= type.name %>
           </label>
           <br>
         <% }); %>
@@ -298,12 +303,12 @@
           const noteDiv = document.getElementById("comment-" + index.toString());
           noteDiv.style.display = 'none';
         }
-        function toggletype(index) {
-          const noteDiv = document.getElementById("type-" + index.toString());
+        function toggleedit(index) {
+          const noteDiv = document.getElementById("transcription-" + index.toString());
           noteDiv.style.display = 'block';
         }
-        function hidetype(index) {
-          const noteDiv = document.getElementById("type-" + index.toString());
+        function hideedit(index) {
+          const noteDiv = document.getElementById("transcription-" + index.toString());
           noteDiv.style.display = 'none';
         }
         function deletetranscription(index,meetingId){
@@ -348,8 +353,6 @@
               }
               console.log("type added successfully");
               console.log(response.message);
-              let realType = document.getElementById("real-type-"+sentanceid);
-              realType.innerHTML=selectedValue;
             })
             .catch(error => {
               console.log("error");
@@ -418,6 +421,7 @@
               }
               console.log("Comment added successfully");
               console.log(response.message);
+              location.reload();
             })
             .catch(error => {
               console.log("error");
@@ -445,6 +449,7 @@
               }
               console.log("transcription updated successfully");
               console.log(response.message);
+              location.reload();
             })
             .catch(error => {
               console.log("error");
@@ -461,6 +466,7 @@
           });
           var checkedParticipants = [...document.getElementsByName("participantfilter")].filter(c=>c.checked).map(c=>c.value);
           var checkedTopics = [...document.getElementsByName("topicfilter")].filter(c=>c.checked).map(c=>c.value);
+          var checkedTypes = [...document.getElementsByName("typefilter")].filter(c=>c.checked).map(c=>c.value);
 
           transcriptItems.forEach(function(item) {
               var text = item.querySelector("b").textContent;
@@ -471,16 +477,11 @@
               var regex2 =  /\((.*?)\)/g;
               var topic = (text.match(regex2)[0]).slice(1,-1);
 
-              if(checkedParticipants.length>0 && checkedTopics.length>0){
-                if(!checkedTopics.includes(topic) || !checkedParticipants.includes(participant)){
+              var regex3 =  /\|(.*?)\|/g;
+              var type = (text.match(regex3)[0]).slice(1,-1);
+
+              if(!checkedTopics.includes(topic) && !checkedParticipants.includes(participant) && !checkedTypes.includes(type)){
                   item.style.display = "none";
-                }
-              }else if(checkedParticipants.length===0 && checkedTopics.length===0){
-                item.style.display = "block";
-              }else{
-                if(!checkedTopics.includes(topic) && !checkedParticipants.includes(participant)){
-                  item.style.display = "none";
-                }
               }
 
           });
@@ -488,36 +489,175 @@
         });
 
         function download(){
-      // Get the elements with the desired class
-      var elements = document.getElementsByClassName('downloadclass');
+          (function() {
+              var id = '<%= mymeeting._id %>';
+              fetch('/getmeeting', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({_id:id})
+            })
+            .then(response => {
+                return response.json();
+            }).then(meeting=>{
+              
+              // Create a container element to hold the elements
+              var container = document.createElement('div');
 
-      // Create a container element to hold the elements
-      var container = document.createElement('div');
+              // Iterate through the meeting variable and append them to the container
+              var titleElement = document.createElement('h1');
+              titleElement.classList.add('card-title');
+              titleElement.textContent = meeting.title;
+              container.appendChild(titleElement);
 
-      // Iterate through the elements and append them to the container
-      for (var i = 0; i < elements.length; i++) {
-        container.appendChild(elements[i].cloneNode(true));
-      }
+              container.appendChild(document.createElement('hr'));
 
-      // Get the HTML content of the container
-      var htmlContent = container.innerHTML;
+              // Add meeting details
+              var meetingDetailsSubtitle = document.createElement('h4');
+              meetingDetailsSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
+              meetingDetailsSubtitle.textContent = 'Meeting Details';
+              container.appendChild(meetingDetailsSubtitle);
 
-      // Create a new blob with the HTML content
-      var blob = new Blob([htmlContent], {type: 'text/html'});
+              var dateElement = document.createElement('p');
+              dateElement.classList.add('card-text', 'card-date');
+              dateElement.textContent = meeting.date;
+              container.appendChild(dateElement);
 
-      // Create a temporary URL for the blob
-      var url = URL.createObjectURL(blob);
+              var locationElement = document.createElement('p');
+              locationElement.classList.add('card-text', 'card-location');
+              locationElement.textContent = meeting.location;
+              container.appendChild(locationElement);
 
-      // Create a link element
-      var link = document.createElement('a');
-      link.href = url;
-      link.download = 'elements.html';
+              var urlElement = document.createElement('p');
+              urlElement.classList.add('card-text');
+              urlElement.innerHTML = '<b>URL:</b> ' + meeting.meetinglink;
+              container.appendChild(urlElement);
 
-      // Simulate a click event to trigger the download
-      link.click();
+              container.appendChild(document.createElement('hr'));
 
-      // Clean up the temporary URL object
-      URL.revokeObjectURL(url);
+              // Add participants
+              var participantsSubtitle = document.createElement('h4');
+              participantsSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
+              participantsSubtitle.textContent = 'Participants';
+              container.appendChild(participantsSubtitle);
+
+              var participantsDropdown = document.createElement('select');
+              participantsDropdown.id = 'my-dropdown-participants';
+              participantsDropdown.classList.add('form-select');
+              participantsDropdown.setAttribute('aria-label', 'Participants');
+              meeting.participants.forEach(function (participant) {
+                var option = document.createElement('option');
+                option.value = participant;
+                option.textContent = participant;
+                participantsDropdown.appendChild(option);
+              });
+              container.appendChild(participantsDropdown);
+
+              container.appendChild(document.createElement('hr'));
+
+              // Add topics
+              var topicsSubtitle = document.createElement('h4');
+              topicsSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
+              topicsSubtitle.textContent = 'Topics';
+              container.appendChild(topicsSubtitle);
+
+              var topicsDropdown = document.createElement('select');
+              topicsDropdown.id = 'my-dropdown-topics';
+              topicsDropdown.classList.add('form-select');
+              topicsDropdown.setAttribute('aria-label', 'Topics');
+              meeting.topics.forEach(function (topic) {
+                var option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic;
+                topicsDropdown.appendChild(option);
+              });
+              container.appendChild(topicsDropdown);
+
+              container.appendChild(document.createElement('hr'));
+
+              // Add description
+              var descriptionSubtitle = document.createElement('h4');
+              descriptionSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
+              descriptionSubtitle.textContent = 'Description';
+              container.appendChild(descriptionSubtitle);
+
+              var descriptionElement = document.createElement('p');
+              descriptionElement.classList.add('card-text');
+              descriptionElement.textContent = meeting.description;
+              container.appendChild(descriptionElement);
+
+              container.appendChild(document.createElement('hr'));
+
+              //Transcription
+              var transcriptionSubtitle = document.createElement('h4');
+              transcriptionSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
+              transcriptionSubtitle.textContent = 'Transcription';
+              container.appendChild(transcriptionSubtitle);
+
+              console.log(meeting);
+              meeting.topics.forEach(function (topic) {
+              var topicelement = document.createElement('h3');
+              topicelement.classList.add('card-subtitle', 'mb-2', 'text-muted');
+              topicelement.textContent = topic;
+              container.appendChild(topicelement);
+              meeting.transcription.forEach(function (transcription) {
+                if(transcription.topic === topic){
+
+                    var transcriptionElement = document.createElement('div');
+                    transcriptionElement.classList.add('transcription-item');
+
+                    var nameElement = document.createElement('p');
+                    nameElement.textContent = transcription.name;
+                    transcriptionElement.appendChild(nameElement);
+
+                    var textElement = document.createElement('p');
+                    textElement.textContent = transcription.transcription;
+                    transcriptionElement.appendChild(textElement);
+
+                    var commentElement = document.createElement('p');
+                    commentElement.textContent = transcription.comment;
+                    transcriptionElement.appendChild(commentElement);
+
+                    var typeElement = document.createElement('p');
+                    typeElement.textContent = transcription.type;
+                    transcriptionElement.appendChild(typeElement);
+
+                    container.appendChild(transcriptionElement);
+                  };
+
+                  container.appendChild(document.createElement('hr'));
+              });
+            });
+
+
+
+              // Get the HTML content of the container
+              var htmlContent = container.innerHTML;
+
+              // Create a new blob with the HTML content
+              var blob = new Blob([htmlContent], {type: 'text/html'});
+
+              // Create a temporary URL for the blob
+              var url = URL.createObjectURL(blob);
+
+              // Create a link element
+              var link = document.createElement('a');
+              link.href = url;
+              link.download = 'elements.html';
+
+              // Simulate a click event to trigger the download
+              link.click();
+
+              // Clean up the temporary URL object
+              URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+              // handle any errors that occur during the request
+              console.error(error);
+            });
+          })();
+
     }
       </script>
 

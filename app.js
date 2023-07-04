@@ -92,9 +92,9 @@ app.post("/postTypes", function(req, res) {
 app.post("/postTags", function(req, res) {
 
   const itemName = req.body.newItem;
-  var redHex = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
-  var greenHex = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
-  var blueHex = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+  var redHex = (Math.floor(Math.random() * 128) + 128).toString(16).padStart(2, '0');
+  var greenHex = (Math.floor(Math.random() * 128) + 128).toString(16).padStart(2, '0');
+  var blueHex = (Math.floor(Math.random() * 128) + 128).toString(16).padStart(2, '0');
   let code ='#' + redHex + greenHex + blueHex;
   const myNewTag = new Tag({
     name: itemName,
@@ -213,7 +213,11 @@ app.post("/getTags", function(request, response, next) {
     response.send(foundmeeting.tags);
   });
 });
-
+app.post("/getmeeting", function(request, response, next) {
+  Meeting.findOne(request.body, function(err,foundmeeting){
+    response.send(foundmeeting);
+  });
+});
 app.post('/save-audio', (req, res) => {
   // Get the uploaded audio blob from the request
   const transcription = req.body.transcription;

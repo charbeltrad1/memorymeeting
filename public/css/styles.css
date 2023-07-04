@@ -47,12 +47,15 @@ button a:hover {
 }
 
 .footer {
-	text-align: center;
-	bottom: 0;
-	width: 100%;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
 	height: 60px;
 	background-color: #2980B9;
 }
+
 
 .footer p {
 	margin-top: 25px;
@@ -206,8 +209,11 @@ button a:hover {
 .topic {
   color: #666;
 }
-
+.transcriptionText{
+  display: none;
+}
 .comment-input {
+  display: none;
   border: none;
   color: blue;
   width: 100%;
