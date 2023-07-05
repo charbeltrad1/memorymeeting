@@ -17,7 +17,7 @@
     <hr class="">
 
     <h4 class="card-subtitle mb-2 text-muted ">Participants</h4>
-    <select id='my-dropdown-participants ' class="form-select " aria-label="Participants">
+    <select id='my-dropdown-participants' class="form-select " aria-label="Participants">
       <% mymeeting.participants.forEach(function(participant) { %>
         <option value="<%= participant %>"><%= participant %></option>
       <% }); %>
@@ -543,7 +543,6 @@
               container.appendChild(participantsSubtitle);
 
               var participantsDropdown = document.createElement('select');
-              participantsDropdown.id = 'my-dropdown-participants';
               participantsDropdown.classList.add('form-select');
               participantsDropdown.setAttribute('aria-label', 'Participants');
               meeting.participants.forEach(function (participant) {
