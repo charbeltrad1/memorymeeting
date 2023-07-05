@@ -188,7 +188,7 @@
               meetingTags.forEach(tag => {
                 console.log(tag)
                 var regex = new RegExp('\\b(' + tag.text + ')\\b', 'gi');
-                text = text.replace(regex, '<span style="color: ' + tag.color + ';">$1</span>');
+                text = text.replace(regex, '<span style="background-color: ' + tag.color + ';">$1</span>');
               });
               console.log(text);
               textarea.innerHTML = text;
@@ -514,7 +514,7 @@
               container.appendChild(document.createElement('hr'));
 
               // Add meeting details
-              var meetingDetailsSubtitle = document.createElement('h4');
+              var meetingDetailsSubtitle = document.createElement('h2');
               meetingDetailsSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
               meetingDetailsSubtitle.textContent = 'Meeting Details';
               container.appendChild(meetingDetailsSubtitle);
@@ -537,7 +537,7 @@
               container.appendChild(document.createElement('hr'));
 
               // Add participants
-              var participantsSubtitle = document.createElement('h4');
+              var participantsSubtitle = document.createElement('h2');
               participantsSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
               participantsSubtitle.textContent = 'Participants';
               container.appendChild(participantsSubtitle);
@@ -557,7 +557,7 @@
               container.appendChild(document.createElement('hr'));
 
               // Add topics
-              var topicsSubtitle = document.createElement('h4');
+              var topicsSubtitle = document.createElement('h2');
               topicsSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
               topicsSubtitle.textContent = 'Topics';
               container.appendChild(topicsSubtitle);
@@ -577,7 +577,7 @@
               container.appendChild(document.createElement('hr'));
 
               // Add description
-              var descriptionSubtitle = document.createElement('h4');
+              var descriptionSubtitle = document.createElement('h2');
               descriptionSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
               descriptionSubtitle.textContent = 'Description';
               container.appendChild(descriptionSubtitle);
@@ -590,7 +590,7 @@
               container.appendChild(document.createElement('hr'));
 
               //Transcription
-              var transcriptionSubtitle = document.createElement('h4');
+              var transcriptionSubtitle = document.createElement('h2');
               transcriptionSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted');
               transcriptionSubtitle.textContent = 'Transcription';
               container.appendChild(transcriptionSubtitle);
@@ -598,39 +598,34 @@
               console.log(meeting);
               meeting.topics.forEach(function (topic) {
               var topicelement = document.createElement('h3');
-              topicelement.classList.add('card-subtitle', 'mb-2', 'text-muted');
               topicelement.textContent = topic;
               container.appendChild(topicelement);
+              var ulElement = document.createElement('ul');
+
               meeting.transcription.forEach(function (transcription) {
-                if(transcription.topic === topic){
-
-                    var transcriptionElement = document.createElement('div');
-                    transcriptionElement.classList.add('transcription-item');
-
-                    var nameElement = document.createElement('p');
-                    nameElement.textContent = transcription.name;
-                    transcriptionElement.appendChild(nameElement);
-
-                    var textElement = document.createElement('p');
-                    textElement.textContent = transcription.transcription;
-                    transcriptionElement.appendChild(textElement);
-
-                    var commentElement = document.createElement('p');
-                    commentElement.textContent = transcription.comment;
-                    transcriptionElement.appendChild(commentElement);
-
-                    var typeElement = document.createElement('p');
-                    typeElement.textContent = transcription.type;
-                    transcriptionElement.appendChild(typeElement);
-
-                    container.appendChild(transcriptionElement);
-                  };
-
-                  container.appendChild(document.createElement('hr'));
+                if (transcription.topic === topic) {
+                  var liElement = document.createElement('li');
+                  let transcriptTexttoAdd =  transcription.transcription;
+                  meeting.tags.forEach(t=>{
+                    console.log(t);
+                    transcriptTexttoAdd=transcriptTexttoAdd.replace(t.text,'<span style="font-weight: bold; color: '+t.color+';">' + t.text +"["+t.tag+"]" + ' </span>')
+                    console.log(transcriptTexttoAdd);
+                  });
+                  liElement.innerHTML =
+                    '<span style="color: blue;">' + transcription.name + ': </span>';
+                     
+                     if(transcription.comment.length>0){
+                      liElement.innerHTML += ' <span style="color: #07BE20; font-weight: bold;">(' + transcription.comment +') </span> - ' ;
+                     }
+                     liElement.innerHTML += '<span style="color: red; font-weight: bold;">' + transcription.type +'</span><br>';
+                     liElement.innerHTML += transcriptTexttoAdd;
+                  ulElement.appendChild(liElement);
+                }
               });
+
+              container.appendChild(ulElement);
+
             });
-
-
 
               // Get the HTML content of the container
               var htmlContent = container.innerHTML;
