@@ -5,14 +5,14 @@
   <div class="card-body">
     <br>
     <br>
-    <h1 class="card-title " ><%= mymeeting.title%></h1>
+    <h1 class="card-title " ><div class="editableDiv" id="TitleContent" onkeydown='updateTitle(event,"<%= mymeeting._id %>")' contenteditable="true"><%= mymeeting.title%></div></h1>
     <button class="btn btn-danger" onclick='deleteElement("<%= mymeeting._id %>")'>Delete</button>
 
     <hr>
     <h4 class="card-subtitle mb-2 text-muted ">Meeting Details</h4>
-    <p class="card-text card-date "><%= mymeeting.date%></p>
-    <p class="card-text card-location "><%= mymeeting.location%></p>
-    <p class="card-text "><b>URL:</b> <%= mymeeting.meetinglink %></p>
+    <p class="card-text card-date "><div class="editableDiv" id="dateContent" onkeydown='updateDate(event,"<%= mymeeting._id %>")' contenteditable="true"><%= mymeeting.date%></div></p>
+    <p class="card-text card-location "><div class="editableDiv" id="locationContent" onkeydown='updateLocation(event,"<%= mymeeting._id %>")' contenteditable="true"><%= mymeeting.location%></div></p>
+    <p class="card-text "><div class="editableDiv" id="meetinglinkContent" onkeydown='updatemeetinglink(event,"<%= mymeeting._id %>")' contenteditable="true"><%= mymeeting.meetinglink %></div></p>
 
     <hr class="">
 
@@ -22,6 +22,7 @@
         <option value="<%= participant %>"><%= participant %></option>
       <% }); %>
     </select>
+    <input id="Participants-Edit" type="button" value="+" onclick='add("Participants","<%= mymeeting._id %>")'>
 
     <hr class="">
 
@@ -31,6 +32,8 @@
         <option value="<%= topic %>"><%= topic %></option>
       <% }); %>
     </select>
+    <input id="Topics-Edit" type="button" value="+" onclick='add("Topics","<%= mymeeting._id %>")'>
+
     <hr class="">
 
     <h4 class="card-subtitle mb-2 text-muted ">Description</h4>
@@ -66,7 +69,7 @@
             <option style="background-color: <%= t.color %>;" value="<%= t.name + t.color %>"><%= t.name %></option>
           <% }); %>
         </select>
-        <input type="text" id="tag-input" placeholder="Tag Word">
+        <input type="text" id="tag-input" placeholder="Tag Words">
         <button onclick='addTag("<%= mymeeting._id %>")'>Submit tag</button>
         <br>
         <br>
@@ -242,16 +245,115 @@
                 const transcriptionText = result[0].transcript;
                 const speaker = document.getElementById("my-dropdown-participants").value;
                 const topic = document.getElementById("my-dropdown-topics").value;
-                if(transcriptionText.length>=2){
+                if(transcriptionText.length>=1){
                   meetingtranscript.push({"name":speaker,"topic":topic,"transcription":transcriptionText,"comment":"","type":"Default"});
-                }
+                
 
-                // Update the display with the current speaker and topic
-                const display = document.getElementById("transcript-list");
-                const currentLine = document.createElement("li");
-                currentLine.innerHTML = `<b>${speaker} (${topic}):</b> ${transcriptionText}`;
-                display.appendChild(currentLine);
+                // Assuming you have a reference to the <ul> element where you want to add the <li>:
+                const myList = document.getElementById('transcript-list');
+
+                // Assuming you have the "sentence" object with properties "name", "topic", and "type":
+                const sentence = {
+                  name: speaker,
+                  topic: topic,
+                  type: "Default",
+                  transcriptionText:transcriptionText,
+                  id:  myList.getElementsByTagName('li').length,
+                };
+
+                // Step 1: Create a new <li> element
+                const newLi = document.createElement('li');
+
+                // Step 2: Create a <b> element and set its content
+                const boldElement = document.createElement('b');
+                boldElement.textContent = `[${sentence.name}]  `;
+
+                // Step 3: Create a <span> element with class "topic" and set its content
+                const topicSpan = document.createElement('span');
+                topicSpan.className = 'topic';
+                topicSpan.textContent = `(${sentence.topic})  `;
+
+                // Step 4: Create another <span> element and set its content
+                const typeSpan = document.createElement('span');
+                typeSpan.textContent = `|${sentence.type}|    `;
+
+                // Step 5: Add all the elements as children to the <b> element
+                boldElement.appendChild(topicSpan);
+                boldElement.appendChild(typeSpan);
+
+                // Button 1
+              const button1 = document.createElement('button');
+              button1.className = 'note-toggle';
+              button1.textContent = 'See comment';
+              button1.setAttribute('onclick', `toggleNote("${sentence.id}")`);
+
+              // Button 2
+              const button2 = document.createElement('button');
+              button2.className = 'note-toggle';
+              button2.textContent = 'Hide comment';
+              button2.setAttribute('onclick', `hideNote("${sentence.id}")`);
+
+              // Button 3
+              const button3 = document.createElement('button');
+              button3.className = 'note-toggle';
+              button3.textContent = 'Edit';
+              button3.setAttribute('onclick', `toggleedit("${sentence.id}")`);
+
+              // Button 4
+              const button4 = document.createElement('button');
+              button4.className = 'note-toggle';
+              button4.textContent = 'Quit edit mode';
+              button4.setAttribute('onclick', `hideedit("${sentence.id}")`);
+
+              const divElement = document.createElement('div');
+              divElement.className = 'form-control transcriptiontextcolored';
+              divElement.setAttribute('type', 'text');
+              divElement.textContent = sentence.transcriptionText;
+
+
+              // Step 12: Create and append the first <textarea> element for transcription
+              const textarea1 = document.createElement('textarea');
+              textarea1.className = 'form-control transcriptionText';
+              textarea1.rows = 3;
+              textarea1.id = `transcription-${sentence.id}`;
+              textarea1.setAttribute('type', 'text');
+              textarea1.setAttribute('onkeydown', `editTranscriptionRecordingMode(event, "${meetingtranscript.length-1}", "${sentence.id}")`);
+
+              textarea1.textContent = sentence.transcriptionText;
+              newLi.appendChild(textarea1);
+
+
+              // Step 14: Create and append the second <textarea> element for comment
+              const textarea2 = document.createElement('textarea');
+              textarea2.className = 'comment-input';
+              textarea2.id = `comment-${sentence.id}`;
+              textarea2.textContent = sentence.comment;
+              textarea2.setAttribute('onkeydown', `saveCommentRecordingMode(event, "${meetingtranscript.length-1}", "${sentence.id}")`);
+
+              newLi.appendChild(textarea2);
+
+              // Step 7: Append the <b> element and the text content to the <li> element
+              newLi.appendChild(boldElement);
+              newLi.append('  :  ');
+              newLi.appendChild(button1);
+              newLi.appendChild(button2);
+              newLi.appendChild(button3);
+              newLi.appendChild(button4);
+              newLi.appendChild(document.createElement('br'));
+              newLi.appendChild(divElement);
+              newLi.appendChild(document.createElement('br'));
+              newLi.appendChild(textarea1);
+              newLi.appendChild(document.createElement('br'));
+              newLi.appendChild(textarea2);
+              newLi.appendChild(document.createElement('br'));
+              newLi.appendChild(document.createElement('br'));
+
+
+              // Finally, append the <li> element to the <ul> (myList) where you want to add it
+              myList.appendChild(newLi);
+
               }
+            }
             });
 
             recognition.addEventListener('end', () => {
@@ -429,7 +531,24 @@
             });
           }
         }
-
+        function saveCommentRecordingMode(event,commentId,elementId){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let commentContent= document.getElementById("comment-"+elementId.toString()).value;
+            meetingtranscript[commentId].comment=commentContent;
+            console.log(commentId);
+          }
+        }
+        function editTranscriptionRecordingMode(event,transcriptionId,elementid){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let transcriptionContent= document.getElementById("transcription-"+elementid.toString()).value;
+            meetingtranscript[transcriptionId].transcription=transcriptionContent;
+            console.log(meetingtranscript);
+          }
+        }
         function editTranscription(event,transcriptionId,meetingId){
           if (event.keyCode === 13) {
             // 13 is the keyCode for Enter key
@@ -457,6 +576,159 @@
             });
           }
         }
+        function updateTitle(event,meetingId){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let newTitle= document.getElementById("TitleContent").innerText;
+            let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"title":newTitle}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/updateTitle", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to upload audio");
+              }
+              console.log("Title updated successfully");
+              console.log(response.message);
+              location.reload();
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });
+          }
+        }
+        function updateDate(event,meetingId){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let newDate= document.getElementById("dateContent").innerText;
+            let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"date":newDate}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/updateDate", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to upload Date");
+              }
+              console.log("Date updated successfully");
+              console.log(response.message);
+              location.reload();
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });
+          }
+        }
+        function updateLocation(event,meetingId){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let newLocation= document.getElementById("locationContent").innerText;
+            let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"location":newLocation}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/updateLocation", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to upload Location");
+              }
+              console.log("location updated successfully");
+              console.log(response.message);
+              location.reload();
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });
+          }
+        }
+        function updatemeetinglink(event,meetingId){
+          if (event.keyCode === 13) {
+            // 13 is the keyCode for Enter key
+            event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+            let newmeetinglink= document.getElementById("meetinglinkContent").innerText;
+            let options = {
+              method: "POST",
+              body: JSON.stringify({"meetingId":meetingId,"link":newmeetinglink}),
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            };
+            fetch("/updatemeetinglink", options)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to upload link");
+              }
+              console.log("link updated successfully");
+              console.log(response.message);
+              location.reload();
+            })
+            .catch(error => {
+              console.log("error");
+              console.error(error);
+            });
+          }
+        }
+        function add(inputtype, meetingId) {
+          // Get the input value
+          var input = document.createElement('input');
+          inputtype === "Participants" ? input.type = 'email' : input.type = "text";
+          input.className = 'form-control';
+          inputtype === "Participants" ? input.placeholder = 'Enter new participant email' : input.placeholder = "Enter a new topic";
+          function handleEnterKeyPress(event) {
+            if (event.keyCode === 13) {
+              // Put your desired function call or logic here
+              // For example:
+              event.preventDefault(); // Prevent the default behavior of Enter key in the textarea
+              let newvalue = event.target.value;
+              let options = {
+                method: "POST",
+                body: JSON.stringify({"meetingId":meetingId,"value":newvalue}),
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+              };
+              let route;
+              inputtype === "Participants" ? route = '/updateParticipants' : route = '/updateTopics';
+              fetch(route, options)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Failed to upload");
+                }
+                console.log(" updated successfully");
+                console.log(response.message);
+                location.reload();
+              })
+              .catch(error => {
+                console.log("error");
+                console.error(error);
+              });
+
+            }
+          }
+          // Attach the event listener
+          input.addEventListener('keydown', handleEnterKeyPress);
+
+          // Add a list item with the input value
+          document.getElementById(inputtype+"-Edit").insertAdjacentElement("afterend", input);
+
+        }
+
         document.getElementById("filterForm").addEventListener("submit", function(event) {
           event.preventDefault(); // Prevents the form from being submitted and the page from refreshing
           

@@ -305,7 +305,102 @@ app.post('/update-transcription', (req, res) => {
     res.json({ message: "transcription uploaded successfully" });
   });
 });
+app.post('/updateTitle', (req, res) => {
+  // Get the uploaded audio blob from the request
+  const meetingId = req.body.meetingId;
+  const title = req.body.title;
 
+  Meeting.findOne({_id:meetingId}, function(err,foundmeeting){
+    foundmeeting.title=title;
+    const update = { $set: { title: foundmeeting.title } };
+    Meeting.updateOne({_id:meetingId}, update)
+    .then(result => {
+      console.log(`title updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+    res.json({ message: "title uploaded successfully" });
+  });
+});
+app.post('/updateDate', (req, res) => {
+  // Get the uploaded audio blob from the request
+  const meetingId = req.body.meetingId;
+  const date = req.body.date;
+
+  Meeting.findOne({_id:meetingId}, function(err,foundmeeting){
+    foundmeeting.date=date;
+    const update = { $set: { date : foundmeeting.date } };
+    Meeting.updateOne({_id:meetingId}, update)
+    .then(result => {
+      console.log(`date updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+    res.json({ message: "date uploaded successfully" });
+  });
+});
+app.post('/updateLocation', (req, res) => {
+  // Get the uploaded audio blob from the request
+  const meetingId = req.body.meetingId;
+  const location = req.body.location;
+
+  Meeting.findOne({_id:meetingId}, function(err,foundmeeting){
+    foundmeeting.location =location;
+    const update = { $set: { location : foundmeeting.location } };
+    Meeting.updateOne({_id:meetingId}, update)
+    .then(result => {
+      console.log(`location updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+    res.json({ message: "location uploaded successfully" });
+  });
+});
+app.post('/updatemeetinglink', (req, res) => {
+  // Get the uploaded audio blob from the request
+  const meetingId = req.body.meetingId;
+  const link = req.body.link;
+
+  Meeting.findOne({_id:meetingId}, function(err,foundmeeting){
+    foundmeeting.meetinglink =link;
+    const update = { $set: { meetinglink : foundmeeting.meetinglink } };
+    Meeting.updateOne({_id:meetingId}, update)
+    .then(result => {
+      console.log(`link updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+    res.json({ message: "link uploaded successfully" });
+  });
+});
+app.post('/updateParticipants', (req, res) => {
+  // Get the uploaded audio blob from the request
+  const meetingId = req.body.meetingId;
+  const participant = req.body.value;
+
+  Meeting.findOne({_id:meetingId}, function(err,foundmeeting){
+    foundmeeting.participants.push(participant);
+    const update = { $set: { participants : foundmeeting.participants } };
+    Meeting.updateOne({_id:meetingId}, update)
+    .then(result => {
+      console.log(`particpant updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+    res.json({ message: "participants uploaded successfully" });
+  });
+});
+app.post('/updateTopics', (req, res) => {
+  // Get the uploaded audio blob from the request
+  const meetingId = req.body.meetingId;
+  const topic = req.body.value;
+
+  Meeting.findOne({_id:meetingId}, function(err,foundmeeting){
+    foundmeeting.topics.push(topic);
+    const update = { $set: { topics : foundmeeting.topics } };
+    Meeting.updateOne({_id:meetingId}, update)
+    .then(result => {
+      console.log(`topic updated`);
+    })
+    .catch(err => console.error(`Error updating documents: ${err}`));
+    res.json({ message: "topics uploaded successfully" });
+  });
+});
 app.post('/delete-transcription', (req, res) => {
   // Get the uploaded audio blob from the request
   const meetingId = req.body.meetingId;

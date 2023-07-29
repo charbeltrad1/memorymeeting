@@ -56,6 +56,9 @@ button a:hover {
 	background-color: #2980B9;
 }
 
+.editableDiv {
+  padding: 2px;
+}
 
 .footer p {
 	margin-top: 25px;

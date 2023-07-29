@@ -52,7 +52,7 @@ function add(inputtype) {
   var input = document.createElement('input');
   inputtype === "Participants" ? input.type = 'email' : input.type = "text";
   input.className = 'form-control';
-  inputtype === "Participants" ? input.placeholder = 'Enter participant name' : input.placeholder = "Enter a topic";
+  inputtype === "Participants" ? input.placeholder = 'Enter participant email' : input.placeholder = "Enter a topic";
   input.name = 'meeting'+inputtype+'[]';
   input.required = "required"
   // Add a list item with the input value
